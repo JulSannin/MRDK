@@ -1,12 +1,11 @@
 import { useNavigate } from 'react-router';
 import type { Event } from '../../entities/types';
 import { formatEventDate } from '../../../utils/dateHelpers';
-import { API_URL } from '../../../config/constants';
 
 /** Полная страница отдельного события */
 export default function EventItem({ event }: { event: Event }) {
     const navigate = useNavigate();
-    const imageUrl = event.image && event.image.startsWith('http') ? event.image : (event.image ? `${API_URL}${event.image}` : '');
+    const imageUrl = event.image && event.image.startsWith('http') ? event.image : (event.image ? `https://backend-production-190b.up.railway.app${event.image}` : '');
 
     if (!event) return <p>Событие не найдено</p>;
 

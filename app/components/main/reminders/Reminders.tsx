@@ -18,6 +18,12 @@ export default function Reminders() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const modalRef = useRef<HTMLDivElement | null>(null);
 
+    const getImageUrl = (url: string | null | undefined): string => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        return `https://backend-production-190b.up.railway.app${url}`;
+    };
+
     useEffect(() => {
         if (selectedImage && modalRef.current) {
             modalRef.current.focus();
