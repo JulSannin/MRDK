@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { NavLink } from 'react-router';
 import { formatEventDate } from '../../../utils/dateHelpers';
+import { API_URL } from '../../../config/constants';
 
 interface EventCardProps {
     id: number;
@@ -13,6 +14,7 @@ interface EventCardProps {
 /** Карточка события для сетки */
 function EventCard({ id, title, shortDescription, date, image }: EventCardProps) {
     const linkPath = `/events/event/${id}`;
+    const imageUrl = image && image.startsWith('http') ? image : (image ? `${API_URL}${image}` : '');
 
     return (
         <NavLink to={linkPath} viewTransition aria-label={title}>
@@ -25,8 +27,8 @@ function EventCard({ id, title, shortDescription, date, image }: EventCardProps)
                 <div
                     className="absolute inset-0 bg-center bg-cover transition-transform duration-300 ease-in-out hover:scale-110"
                     style={{ 
-                        backgroundImage: image ? `url(${image})` : 'none',
-                        backgroundColor: !image ? '#31393C' : 'transparent'
+                        backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
+                        backgroundColor: !imageUrl ? '#31393C' : 'transparent'
                     }}
                 />
                 <time className="relative z-10 text-center w-[144px] ml-[10px] mt-[10px] text-white bg-[#31393C]/60 rounded-[5px]">

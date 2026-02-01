@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router';
 import type { Event } from '../../entities/types';
 import { formatEventDate } from '../../../utils/dateHelpers';
+import { API_URL } from '../../../config/constants';
 
 /** Полная страница отдельного события */
 export default function EventItem({ event }: { event: Event }) {
     const navigate = useNavigate();
+    const imageUrl = event.image && event.image.startsWith('http') ? event.image : (event.image ? `${API_URL}${event.image}` : '');
 
     if (!event) return <p>Событие не найдено</p>;
 
@@ -16,8 +18,8 @@ export default function EventItem({ event }: { event: Event }) {
             >
                 ← Назад
             </button>
-            {event.image && (
-                    <img src={event.image} alt={event.title} className="w-full max-w-[900px] px-[10px]" />
+            {imageUrl && (
+                    <img src={imageUrl} alt={event.title} className="w-full max-w-[900px] px-[10px]" />
             )}
                 <p className="text-gray-600 mt-4 px-[10px]">{formatEventDate(event.date)}</p>
                 <h1 className="text-3xl font-bold mt-2 mb-4 px-[10px]">{event.title}</h1>

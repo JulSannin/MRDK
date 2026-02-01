@@ -37,11 +37,11 @@ export default function Reminders() {
                             key={reminder.id}
                             role={reminder.imageUrl ? "button" : undefined}
                             tabIndex={reminder.imageUrl ? 0 : undefined}
-                            onClick={reminder.imageUrl ? () => setSelectedImage(reminder.imageUrl!) : undefined}
+                            onClick={reminder.imageUrl ? () => setSelectedImage(getImageUrl(reminder.imageUrl)) : undefined}
                             onKeyDown={reminder.imageUrl ? (e) => {
                                 if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault();
-                                    setSelectedImage(reminder.imageUrl!);
+                                    setSelectedImage(getImageUrl(reminder.imageUrl));
                                 }
                             } : undefined}
                             className={`bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow border-l-4 border-blue-500 ${
