@@ -78,7 +78,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 const csrfProtection = csrf({
     cookie: {
         httpOnly: true,
-        sameSite: COOKIE_SAMESITE,
+        sameSite: NODE_ENV === 'production' ? 'None' : COOKIE_SAMESITE,
         secure: NODE_ENV === 'production' || COOKIE_SAMESITE === 'none',
         path: '/',
     },
