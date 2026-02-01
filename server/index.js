@@ -50,6 +50,7 @@ app.use(helmet({
         },
     },
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 app.use(compression());
 
@@ -91,7 +92,11 @@ if (UPLOADS_REQUIRE_AUTH) {
 
 // Добавляем CORS headers для статических файлов
 app.use('/uploads', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
+    const origin = req.headers.origin;
+    if (origin && CORS_ORIGINS.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Vary', 'Origin');
+    }
     res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
