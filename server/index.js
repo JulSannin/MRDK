@@ -88,6 +88,15 @@ app.use(csrfProtection);
 if (UPLOADS_REQUIRE_AUTH) {
     app.use('/uploads', authenticateToken);
 }
+
+// Добавляем CORS headers для статических файлов
+app.use('/uploads', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
+
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
 await initDatabase();
