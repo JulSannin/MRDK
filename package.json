@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
+    "build": "npx react-router build",
     "dev": "concurrently \"npm:dev:client\" \"npm:dev:server\"",
-    "dev:client": "react-router dev",
+    "dev:client": "npx react-router dev",
     "dev:server": "cd server && npm run dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "npx react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
