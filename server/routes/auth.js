@@ -19,7 +19,7 @@ const authLimiter = rateLimit({
 // Опции cookie для безопасности
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    sameSite: process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === 'production' ? 'lax' : 'lax'),
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : (process.env.COOKIE_SAMESITE || 'lax'),
     secure: process.env.NODE_ENV === 'production' || process.env.COOKIE_SAMESITE === 'none',
     path: '/',
 };
