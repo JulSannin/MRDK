@@ -1,0 +1,365 @@
+import { ApiError, AUTH_ERRORS, COMMON_ERRORS } from './errorHandler';
+import { API_URL } from '../config/constants';
+import type { Event, Document, Reminder, WorkplanItem, AuthResponse, VerifyTokenResponse } from '../components/entities/types';
+
+let cachedCSRFToken: string | null = null;
+let csrfTokenFetchedAt = 0;
+const CSRF_TOKEN_TTL_MS = 5 * 60 * 1000;
+
+function clearCSRFTokenCache() {
+    cachedCSRFToken = null;
+    csrfTokenFetchedAt = 0;
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+    if (!response.ok) {
+        let errorMessage: string;
+        let errorData: any = null;
+
+        try {
+            errorData = await response.clone().json();
+        } catch {
+            errorData = null;
+        }
+        
+        switch (response.status) {
+            case 401:
+                errorMessage = AUTH_ERRORS.UNAUTHORIZED;
+                break;
+            case 403:
+                errorMessage = AUTH_ERRORS.FORBIDDEN;
+                break;
+            case 404:
+                errorMessage = COMMON_ERRORS.NOT_FOUND;
+                break;
+            case 500:
+            case 502:
+            case 503:
+                errorMessage = COMMON_ERRORS.SERVER_ERROR;
+                break;
+            default:
+                errorMessage =
+                    errorData?.message ||
+                    errorData?.error ||
+                    `Ошибка: ${response.status}`;
+        }
+
+        if (response.status === 403) {
+            if (
+                errorData?.code === 'EBADCSRFTOKEN' ||
+                (errorData?.error && String(errorData.error).toLowerCase().includes('csrf token'))
+            ) {
+                clearCSRFTokenCache();
+            }
+        }
+        
+        throw new ApiError(errorMessage, response.status);
+    }
+    
+    return response.json();
+}
+
+function handleNetworkError(error: unknown): never {
+    if (error instanceof ApiError) {
+        throw error;
+    }
+    
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new ApiError(COMMON_ERRORS.NETWORK_ERROR);
+    }
+    
+    throw new ApiError(
+        error instanceof Error ? error.message : COMMON_ERRORS.SERVER_ERROR
+    );
+}
+
+async function apiFetch<T>(
+    url: string,
+    options: RequestInit = {},
+    retries = 3
+): Promise<T> {
+    try {
+        const response = await fetch(url, {
+            credentials: 'include',
+            ...options,
+        });
+        return handleResponse<T>(response);
+    } catch (error) {
+        // Retry только для GET запросов и network ошибок
+        if (retries > 0 && (!options.method || options.method === 'GET')) {
+            // Exponential backoff: 1s, 2s, 4s
+            const delay = Math.pow(2, 3 - retries) * 1000;
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return apiFetch<T>(url, options, retries - 1);
+        }
+        handleNetworkError(error);
+    }
+}
+
+async function getCSRFToken(): Promise<string> {
+    try {
+        const now = Date.now();
+        if (cachedCSRFToken && now - csrfTokenFetchedAt < CSRF_TOKEN_TTL_MS) {
+            return cachedCSRFToken;
+        }
+        const data = await apiFetch<{ csrfToken: string }>(`${API_URL}/auth/csrf-token`);
+        cachedCSRFToken = data.csrfToken;
+        csrfTokenFetchedAt = Date.now();
+        return data.csrfToken;
+    } catch {
+        // CSRF токен опционален, если не получился - продолжаем
+        return '';
+    }
+}
+
+function addCSRFHeaders(options: RequestInit, csrfToken: string): RequestInit {
+    if (csrfToken && ['POST', 'PUT', 'DELETE'].includes(options.method || '')) {
+        return {
+            ...options,
+            headers: {
+                ...((options.headers as Record<string, string>) || {}),
+                'X-CSRF-Token': csrfToken,
+            },
+        };
+    }
+    return options;
+}
+
+/**
+ * API клиент для взаимодействия с бэкендом
+ * Предоставляет методы для работы с событиями, документами, памятками, планом работы и авторизацией
+ */
+export const api = {
+    /**
+     * Получает список всех событий
+     * @returns {Promise<Event[]>} Массив событий
+     */
+    getEvents: async (): Promise<Event[]> => {
+        return apiFetch<Event[]>(`${API_URL}/events`);
+    },
+
+    /**
+     * Получает событие по ID
+     * @param {number} id - ID события
+     * @returns {Promise<Event>} Объект события
+     */
+    getEvent: async (id: number): Promise<Event> => {
+        return apiFetch<Event>(`${API_URL}/events/${id}`);
+    },
+
+    /**
+     * Создает новое событие
+     * @param {FormData} data - Данные события в FormData
+     * @returns {Promise<Event>} Созданное событие
+     */
+    createEvent: async (data: FormData): Promise<Event> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<Event>(`${API_URL}/events`, 
+            addCSRFHeaders({ method: 'POST', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Обновляет существующее событие
+     * @param {number} id - ID события
+     * @param {FormData} data - Обновленные данные в FormData
+     * @returns {Promise<Event>} Обновленное событие
+     */
+    updateEvent: async (id: number, data: FormData): Promise<Event> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<Event>(`${API_URL}/events/${id}`, 
+            addCSRFHeaders({ method: 'PUT', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Удаляет событие
+     * @param {number} id - ID события
+     * @returns {Promise<{success: boolean}>} Результат удаления
+     */
+    deleteEvent: async (id: number): Promise<{ success: boolean }> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<{ success: boolean }>(`${API_URL}/events/${id}`, 
+            addCSRFHeaders({ method: 'DELETE' }, csrfToken)
+        );
+    },
+
+    /**
+     * Получает список всех документов
+     * @returns {Promise<Document[]>} Массив документов
+     */
+    getDocuments: async (): Promise<Document[]> => {
+        return apiFetch<Document[]>(`${API_URL}/documents`);
+    },
+
+    /**
+     * Создает новый документ
+     * @param {FormData} data - Данные документа в FormData
+     * @returns {Promise<Document>} Созданный документ
+     */
+    createDocument: async (data: FormData): Promise<Document> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<Document>(`${API_URL}/documents`, 
+            addCSRFHeaders({ method: 'POST', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Обновляет существующий документ
+     * @param {number} id - ID документа
+     * @param {FormData} data - Обновленные данные в FormData
+     * @returns {Promise<Document>} Обновленный документ
+     */
+    updateDocument: async (id: number, data: FormData): Promise<Document> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<Document>(`${API_URL}/documents/${id}`, 
+            addCSRFHeaders({ method: 'PUT', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Удаляет документ
+     * @param {number} id - ID документа
+     * @returns {Promise<{success: boolean}>} Результат удаления
+     */
+    deleteDocument: async (id: number): Promise<{ success: boolean }> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<{ success: boolean }>(`${API_URL}/documents/${id}`, 
+            addCSRFHeaders({ method: 'DELETE' }, csrfToken)
+        );
+    },
+
+    /**
+     * Получает список всех памяток
+     * @returns {Promise<Reminder[]>} Массив памяток
+     */
+    getReminders: async (): Promise<Reminder[]> => {
+        return apiFetch<Reminder[]>(`${API_URL}/reminders`);
+    },
+
+    /**
+     * Создает новую памятку
+     * @param {FormData} data - Данные памятки в FormData
+     * @returns {Promise<Reminder>} Созданная памятка
+     */
+    createReminder: async (data: FormData): Promise<Reminder> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<Reminder>(`${API_URL}/reminders`, 
+            addCSRFHeaders({ method: 'POST', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Обновляет существующую памятку
+     * @param {number} id - ID памятки
+     * @param {FormData} data - Обновленные данные в FormData
+     * @returns {Promise<Reminder>} Обновленная памятка
+     */
+    updateReminder: async (id: number, data: FormData): Promise<Reminder> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<Reminder>(`${API_URL}/reminders/${id}`, 
+            addCSRFHeaders({ method: 'PUT', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Удаляет памятку
+     * @param {number} id - ID памятки
+     * @returns {Promise<{success: boolean}>} Результат удаления
+     */
+    deleteReminder: async (id: number): Promise<{ success: boolean }> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<{ success: boolean }>(`${API_URL}/reminders/${id}`, 
+            addCSRFHeaders({ method: 'DELETE' }, csrfToken)
+        );
+    },
+
+    /**
+     * Получает план работы
+     * @returns {Promise<WorkplanItem[]>} Массив элементов плана работы
+     */
+    getWorkplan: async (): Promise<WorkplanItem[]> => {
+        return apiFetch<WorkplanItem[]>(`${API_URL}/workplan`);
+    },
+
+    /**
+     * Создает новый элемент плана работы
+     * @param {FormData} data - Данные элемента в FormData
+     * @returns {Promise<WorkplanItem>} Созданный элемент
+     */
+    createWorkplanItem: async (data: FormData): Promise<WorkplanItem> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<WorkplanItem>(`${API_URL}/workplan`, 
+            addCSRFHeaders({ method: 'POST', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Обновляет элемент плана работы
+     * @param {number} id - ID элемента
+     * @param {FormData} data - Обновленные данные в FormData
+     * @returns {Promise<WorkplanItem>} Обновленный элемент
+     */
+    updateWorkplanItem: async (id: number, data: FormData): Promise<WorkplanItem> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<WorkplanItem>(`${API_URL}/workplan/${id}`, 
+            addCSRFHeaders({ method: 'PUT', body: data }, csrfToken)
+        );
+    },
+
+    /**
+     * Удаляет элемент плана работы
+     * @param {number} id - ID элемента
+     * @returns {Promise<{success: boolean}>} Результат удаления
+     */
+    deleteWorkplanItem: async (id: number): Promise<{ success: boolean }> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<{ success: boolean }>(`${API_URL}/workplan/${id}`, 
+            addCSRFHeaders({ method: 'DELETE' }, csrfToken)
+        );
+    },
+
+    /**
+     * Выполняет вход пользователя
+     * @param {string} username - Имя пользователя
+     * @param {string} password - Пароль
+     * @returns {Promise<AuthResponse>} Ответ авторизации
+     */
+    login: async (username: string, password: string): Promise<AuthResponse> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<AuthResponse>(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
+            },
+            body: JSON.stringify({ username, password }),
+        });
+    },
+
+    /**
+     * Проверяет валидность токена авторизации
+     * @returns {Promise<VerifyTokenResponse>} Результат проверки токена
+     */
+    verifyToken: async (): Promise<VerifyTokenResponse> => {
+        try {
+            return await apiFetch<VerifyTokenResponse>(`${API_URL}/auth/verify`);
+        } catch (error) {
+            if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+                return { valid: false };
+            }
+            return { valid: false };
+        }
+    },
+
+    /**
+     * Выполняет выход пользователя
+     * @returns {Promise<{success: boolean}>} Результат выхода
+     */
+    logout: async (): Promise<{ success: boolean }> => {
+        const csrfToken = await getCSRFToken();
+        return apiFetch<{ success: boolean }>(`${API_URL}/auth/logout`, 
+            addCSRFHeaders({ method: 'POST' }, csrfToken)
+        );
+    },
+};
