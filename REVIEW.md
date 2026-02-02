@@ -18,14 +18,17 @@
 
 ## Backend (server/)
 ### Дублирование/повтор кода
-- ⏳ **Логика загрузки файлов** — создана новая утилита [server/utils/multerHelpers.js](server/utils/multerHelpers.js) с фабриками для:
+- ✅ **Логика загрузки файлов** — создана новая утилита [server/utils/multerHelpers.js](server/utils/multerHelpers.js) с фабриками для:
   - `createUploadMiddleware()` — единая конфигурация multer для всех типов файлов (image, document, reminderImage, workplanFile)
   - `createUploadStorage()` — настройка хранилища (папка, префикс, размер)
   - `getUploadPath()` — получение пути к файлу
   - Поддержка разных file filters (regex для изображений, массив типов для документов)
-  - **Status**: Обновлен [server/routes/events.js](server/routes/events.js) как пример; остальные роуты можно обновить по одному
-  - **Результат**: events.js стал на 35 строк короче, остальной логике можно следовать
-- Схемы валидации похожи между сущностями, но реализованы отдельно — можно централизовать типовые правила в [server/middleware/validation.js](server/middleware/validation.js).
+  - **Результат**: Все 4 роута обновлены, 150+ строк дублирования удалено
+- ✅ **Схемы валидации** — централизованы в [server/utils/validationSchemas.js](server/utils/validationSchemas.js):
+  - `COMMON_VALIDATION_RULES` — повторяющиеся правила (titleLong, descriptionLong, date и т.д.)
+  - `VALIDATION_SCHEMAS` — готовые схемы для каждой сущности (event, document, reminder, workplan)
+  - Все 4 роута обновлены использовать централизованные схемы вместо копипасты
+  - **Результат**: Валидация из одного источника, легко обновлять и добавлять новые сущности
 
 ### Неиспользуемый код
 - `isValidPriority()` не используется. Файл: [server/utils/validation.js](server/utils/validation.js).

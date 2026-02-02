@@ -12,6 +12,7 @@ import { getErrorMessage, validateId } from '../utils/errorHandler.js';
 import { createUploadMiddleware, getUploadPath } from '../utils/multerHelpers.js';
 import { createValidationWithCleanup } from '../utils/uploadHelpers.js';
 import { validateAndSanitize } from '../middleware/validation.js';
+import { VALIDATION_SCHEMAS } from '../utils/validationSchemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -34,18 +35,8 @@ const upload = createUploadMiddleware('workplanFile', __dirname);
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const getWorkplanUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
-const workplanValidationSchema = {
-    month: { required: true, minLength: 1, maxLength: 30 },
-    year: {
-        required: true,
-        validate: (value) => {
-            const yearNumber = Number(value);
-            return Number.isInteger(yearNumber) && yearNumber >= 2000 && yearNumber <= 2100;
-        },
-        validateMessage: 'Некорректный год',
-    },
-    description: { required: true, minLength: 1, maxLength: 5000 },
-};
+// Схема валидации для плана работы (используем централизованную схему)
+const workplanValidationSchema = VALIDATION_SCHEMAS.workplan;
 
 const validateWorkplan = createValidationWithCleanup({
     schema: workplanValidationSchema,

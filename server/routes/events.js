@@ -12,6 +12,7 @@ import { getErrorMessage, validateId } from '../utils/errorHandler.js';
 import { createUploadMiddleware, getUploadPath } from '../utils/multerHelpers.js';
 import { createValidationWithCleanup } from '../utils/uploadHelpers.js';
 import { validateAndSanitize } from '../middleware/validation.js';
+import { VALIDATION_SCHEMAS } from '../utils/validationSchemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,13 +37,8 @@ const getEventUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
 const MAX_EVENTS_LIMIT = 50;
 
-// Схема валидации для событий
-const eventValidationSchema = {
-    title: { required: true, minLength: 3, maxLength: 255 },
-    shortDescription: { required: true, minLength: 10, maxLength: 500 },
-    fullDescription: { required: true, minLength: 20, maxLength: 5000 },
-    date: { required: true, type: 'date' },
-};
+// Схема валидации для событий (используем централизованную схему)
+const eventValidationSchema = VALIDATION_SCHEMAS.event;
 
 const validateEvent = createValidationWithCleanup({
     schema: eventValidationSchema,

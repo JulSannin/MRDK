@@ -13,6 +13,7 @@ import { getErrorMessage, validateId } from '../utils/errorHandler.js';
 import { createUploadMiddleware, getUploadPath } from '../utils/multerHelpers.js';
 import { createValidationWithCleanup } from '../utils/uploadHelpers.js';
 import { validateAndSanitize } from '../middleware/validation.js';
+import { VALIDATION_SCHEMAS } from '../utils/validationSchemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,21 +36,8 @@ const upload = createUploadMiddleware('reminderImage', __dirname);
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const getReminderUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
-const reminderValidationSchema = {
-    title: { required: true, minLength: 1, maxLength: 200 },
-    description: { required: true, minLength: 1, maxLength: 5000 },
-    date: {
-        required: true,
-        type: 'date',
-        validate: (value) => isValidDate(value),
-        validateMessage: 'Некорректная дата',
-    },
-    priority: {
-        required: false,
-        validate: (value) => !value || ALLOWED_PRIORITIES.has(value),
-        validateMessage: 'Некорректный приоритет',
-    },
-};
+// Схема валидации для напоминаний (используем централизованную схему)
+const reminderValidationSchema = VALIDATION_SCHEMAS.reminder;
 
 const validateReminder = createValidationWithCleanup({
     schema: reminderValidationSchema,

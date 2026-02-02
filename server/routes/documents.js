@@ -12,6 +12,7 @@ import { getErrorMessage, validateId } from '../utils/errorHandler.js';
 import { createUploadMiddleware, getUploadPath } from '../utils/multerHelpers.js';
 import { createValidationWithCleanup } from '../utils/uploadHelpers.js';
 import { validateAndSanitize } from '../middleware/validation.js';
+import { VALIDATION_SCHEMAS } from '../utils/validationSchemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -34,11 +35,8 @@ const upload = createUploadMiddleware('document', __dirname);
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const getDocumentUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
-const documentValidationSchema = {
-    title: { required: true, minLength: 1, maxLength: 200 },
-    description: { required: false, maxLength: 1000 },
-    category: { required: false, maxLength: 50 },
-};
+// Схема валидации для документов (используем централизованную схему)
+const documentValidationSchema = VALIDATION_SCHEMAS.document;
 
 const validateDocument = createValidationWithCleanup({
     schema: documentValidationSchema,
