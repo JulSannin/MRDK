@@ -51,17 +51,6 @@ export function getErrorDetails(error: unknown): ErrorDetails {
     return { message: 'Произошла неизвестная ошибка', original: error };
 }
 
-// Handle API error with logging
-export function handleApiError(error: unknown): never {
-    const details = getErrorDetails(error);
-    
-    if (import.meta.env.DEV) {
-        console.error('API Error:', details);
-    }
-    
-    throw new ApiError(details.message, details.status, details.code);
-}
-
 // Auth error messages
 export const AUTH_ERRORS = {
     INVALID_CREDENTIALS: 'Неверный логин или пароль',
