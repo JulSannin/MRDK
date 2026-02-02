@@ -7,7 +7,7 @@ export default function FooterSocialMedia() {
             <p className="text-[#D9D9D9] text-[16px] font-bold">
                 Социальные сети
             </p>
-            <hr className="bg-[#D9D9D9] h-[2px] mt-[10px]" />
+            <hr className="bg-[#D9D9D9] border-0 h-[2px] mt-[10px]" />
             <div className="flex flex-row gap-[10px] mt-[10px] mb-[10px]">
                 {socialLinksData.map((link) => {
                     return (

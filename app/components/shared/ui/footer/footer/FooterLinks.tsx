@@ -10,7 +10,7 @@ function FooterLinks() {
             <p className="md:text-[#D9D9D9] md:text-[16px] md:font-bold hidden md:block xl:hidden">
                 Навигация
             </p>
-            <hr className="bg-[#D9D9D9] h-[2px] mt-[10px] hidden md:block xl:hidden" />
+            <hr className="bg-[#D9D9D9] border-0 h-[2px] mt-[10px] hidden md:block xl:hidden" />
             <div
                 className="hidden text-white mt-[10px] xl:mt-[0]
             md:flex md:flex-col md:gap-[4px] md:text-[12px] md:font-medium
@@ -31,7 +31,7 @@ function FooterLinks() {
                     );
                 })}
             </div>
-            <hr className="bg-[#D9D9D9] h-[2px] mt-[10px] hidden xl:block" />
+            <hr className="bg-[#D9D9D9] border-0 h-[2px] mt-[10px] hidden xl:block" />
             <img
                 src={logoSvg}
                 alt="Логотип Мариинский районный дом культуры"
