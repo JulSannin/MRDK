@@ -21,7 +21,7 @@ export default function NavBar() {
         let isMounted = true;
         const controller = new AbortController();
 
-        const shouldCheck = !hasCheckedTokenRef.current || location.pathname.startsWith('/admin');
+        const shouldCheck = !hasCheckedTokenRef.current || location.pathname.startsWith('/admin') || location.pathname === '/';
         
         if (shouldCheck && !isCheckingRef.current) {
             isCheckingRef.current = true;

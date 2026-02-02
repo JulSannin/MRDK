@@ -56,7 +56,7 @@ export default function Admin() {
     const handleLogout = () => {
         api.logout().catch(() => null);
         showInfo('Вы вышли из системы');
-        navigate('/admin/login');
+        navigate('/');
     };
 
     if (loading) {
