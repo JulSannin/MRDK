@@ -56,12 +56,6 @@ const upload = multer({
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const getReminderUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
-const validateReminder = createValidationWithCleanup({
-    schema: reminderValidationSchema,
-    logger,
-    orphanLabel: 'reminder image',
-});
-
 const reminderValidationSchema = {
     title: { required: true, minLength: 1, maxLength: 200 },
     description: { required: true, minLength: 1, maxLength: 5000 },
@@ -77,6 +71,12 @@ const reminderValidationSchema = {
         validateMessage: 'Некорректный приоритет',
     },
 };
+
+const validateReminder = createValidationWithCleanup({
+    schema: reminderValidationSchema,
+    logger,
+    orphanLabel: 'reminder image',
+});
 
 // GET - получить все напоминания
 router.get('/', async (req, res) => {

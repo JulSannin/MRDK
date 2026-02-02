@@ -57,12 +57,6 @@ const getEventUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
 const MAX_EVENTS_LIMIT = 50;
 
-const validateEvent = createValidationWithCleanup({
-    schema: eventValidationSchema,
-    logger,
-    orphanLabel: 'event image',
-});
-
 // Схема валидации для событий
 const eventValidationSchema = {
     title: { required: true, minLength: 3, maxLength: 255 },
@@ -70,6 +64,12 @@ const eventValidationSchema = {
     fullDescription: { required: true, minLength: 20, maxLength: 5000 },
     date: { required: true, type: 'date' },
 };
+
+const validateEvent = createValidationWithCleanup({
+    schema: eventValidationSchema,
+    logger,
+    orphanLabel: 'event image',
+});
 
 // GET - получить все события с пагинацией
 router.get('/', async (req, res) => {

@@ -62,12 +62,6 @@ const upload = multer({
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const getWorkplanUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
-const validateWorkplan = createValidationWithCleanup({
-    schema: workplanValidationSchema,
-    logger,
-    orphanLabel: 'workplan file',
-});
-
 const workplanValidationSchema = {
     month: { required: true, minLength: 1, maxLength: 30 },
     year: {
@@ -80,6 +74,12 @@ const workplanValidationSchema = {
     },
     description: { required: true, minLength: 1, maxLength: 5000 },
 };
+
+const validateWorkplan = createValidationWithCleanup({
+    schema: workplanValidationSchema,
+    logger,
+    orphanLabel: 'workplan file',
+});
 
 // GET - получить весь план работы
 router.get('/', async (req, res) => {
