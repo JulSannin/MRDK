@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router';
 import type { Event } from '../../entities/types';
 import { formatEventDate } from '../../../utils/dateHelpers';
+import { normalizeImageUrl } from '../../../utils/fileHelpers';
 
 /** Полная страница отдельного события */
 export default function EventItem({ event }: { event: Event }) {
     const navigate = useNavigate();
-    const imageUrl = event.image && event.image.startsWith('http') ? event.image : (event.image ? `https://backend-production-190b.up.railway.app${event.image}` : '');
+    const imageUrl = normalizeImageUrl(event.image);
 
     if (!event) return <p>Событие не найдено</p>;
 

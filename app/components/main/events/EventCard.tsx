@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { NavLink } from 'react-router';
 import { formatEventDate } from '../../../utils/dateHelpers';
+import { normalizeImageUrl } from '../../../utils/fileHelpers';
 
 interface EventCardProps {
     id: number;
@@ -13,7 +14,7 @@ interface EventCardProps {
 /** Карточка события для сетки */
 function EventCard({ id, title, shortDescription, date, image }: EventCardProps) {
     const linkPath = `/events/event/${id}`;
-    const imageUrl = image && image.startsWith('http') ? image : (image ? `https://backend-production-190b.up.railway.app${image}` : '');
+    const imageUrl = normalizeImageUrl(image);
 
     return (
         <NavLink to={linkPath} viewTransition aria-label={title}>

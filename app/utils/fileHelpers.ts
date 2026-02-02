@@ -17,3 +17,18 @@ export function handleDownload(fileUrl: string, fileName: string): void {
         throw error;
     }
 }
+
+/**
+ * Нормализует URL изображения с учетом относительных путей
+ * @param {string | null | undefined} url - Исходный URL
+ * @param {string} baseUrl - Базовый URL бэкенда
+ * @returns {string} Нормализованный URL
+ */
+export function normalizeImageUrl(
+    url: string | null | undefined,
+    baseUrl = 'https://backend-production-190b.up.railway.app'
+): string {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${baseUrl}${url}`;
+}

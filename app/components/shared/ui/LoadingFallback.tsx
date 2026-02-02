@@ -1,5 +1,3 @@
-import React from 'react';
-
 /** Компонент загрузки для HydrateFallback */
 export default function LoadingFallback() {
     return (

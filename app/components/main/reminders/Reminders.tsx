@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '../../../utils/api';
 import type { Reminder } from '../../entities/types';
 import { createDataLoader } from '../../../utils/loaderFactory';
+import { normalizeImageUrl } from '../../../utils/fileHelpers';
 
 /** Мета-данные для страницы памяток */
 export function meta() {
@@ -19,9 +20,7 @@ export default function Reminders() {
     const modalRef = useRef<HTMLDivElement | null>(null);
 
     const getImageUrl = (url: string | null | undefined): string => {
-        if (!url) return '';
-        if (url.startsWith('http')) return url;
-        return `https://backend-production-190b.up.railway.app${url}`;
+        return normalizeImageUrl(url);
     };
 
     useEffect(() => {
