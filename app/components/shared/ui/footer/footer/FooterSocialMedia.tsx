@@ -20,7 +20,7 @@ export default function FooterSocialMedia() {
                             className="hover:opacity-75 transition-opacity"
                         >
                             <img
-                                className="w-[18px] md:w-[22px] h-auto"
+                                className="w-[26px] md:w-[30px] h-auto"
                                 src={link.icon}
                                 alt={link.label}
                             />

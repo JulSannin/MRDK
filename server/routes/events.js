@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -10,7 +9,9 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { getLogger } from '../lib/logger.js';
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MUTATION_MAX } from '../config.js';
 import { getErrorMessage, validateId } from '../utils/errorHandler.js';
-import { createValidationWithCleanup, getUploadPath } from '../utils/uploadHelpers.js';
+import { createUploadMiddleware, getUploadPath } from '../utils/multerHelpers.js';
+import { createValidationWithCleanup } from '../utils/uploadHelpers.js';
+import { validateAndSanitize } from '../middleware/validation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,30 +28,8 @@ const mutationLimiter = rateLimit({
     message: 'Слишком много запросов, попробуйте позже',
 });
 
-// Настройка multer для загрузки изображений
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../uploads/events'));
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, 'event-' + uniqueSuffix + path.extname(file.originalname));
-    },
-});
-
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (mimetype && extname) {
-            return cb(null, true);
-        }
-        cb(new Error('Только изображения разрешены!'));
-    },
-});
+// Настройка multer для загрузки изображений (используем фабрику из multerHelpers)
+const upload = createUploadMiddleware('image', __dirname);
 
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const getEventUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
@@ -69,6 +48,7 @@ const validateEvent = createValidationWithCleanup({
     schema: eventValidationSchema,
     logger,
     orphanLabel: 'event image',
+    validateAndSanitize,
 });
 
 // GET - получить все события с пагинацией

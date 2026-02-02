@@ -5,15 +5,26 @@
 
 ## Frontend (app/)
 ### Повторяющиеся участки
-- Нормализация URL изображений повторялась в нескольких компонентах — уже вынесена в утилиту; проверьте, что все обращения к картинкам идут через [app/utils/fileHelpers.ts](app/utils/fileHelpers.ts).
+- ✅ **Нормализация URL изображений** — вынесена в утилиту; все компоненты используют `normalizeImageUrl()` из [app/utils/fileHelpers.ts](app/utils/fileHelpers.ts):
+  - [app/components/main/events/EventCard.tsx](app/components/main/events/EventCard.tsx) — использует для background-image
+  - [app/components/main/events/EventItem.tsx](app/components/main/events/EventItem.tsx) — использует для `<img src>`
+  - [app/components/main/reminders/Reminders.tsx](app/components/main/reminders/Reminders.tsx) — использует для модального окна
+  - Файлы (documents, workplan) — используют `handleDownload()` из той же утилиты
+  - **Результат:** Нет прямых конструкций URL вроде `${API_URL}/uploads` в компонентах ✓
 
 ### Потенциальные улучшения
-- Жестко заданный базовый URL в `normalizeImageUrl()` — лучше читать из env, чтобы не фиксировать адрес Railway в коде. Файл: [app/utils/fileHelpers.ts](app/utils/fileHelpers.ts).
+- ✅ **Базовый URL в `normalizeImageUrl()`** — уже читается из env переменной `VITE_BACKEND_URL` (см. [app/config/constants.ts](app/config/constants.ts)). Позволяет использовать разные адреса для localhost, staging и production без пересборки кода.
 - Кнопка «режим для слабовидящих» без обработчика: сейчас это мертвый UI. Файл: [app/components/shared/ui/header/navbar/NavActions.tsx](app/components/shared/ui/header/navbar/NavActions.tsx).
 
 ## Backend (server/)
 ### Дублирование/повтор кода
-- Логика загрузки файлов и очистки «осиротевших» файлов повторяется в нескольких роутерах. Файлы: [server/routes/events.js](server/routes/events.js), [server/routes/documents.js](server/routes/documents.js), [server/routes/reminders.js](server/routes/reminders.js), [server/routes/workplan.js](server/routes/workplan.js). Рекомендация: вынести общие части (multer config, cleanup, getUploadPath, createValidationWithCleanup) в общие утилиты.
+- ⏳ **Логика загрузки файлов** — создана новая утилита [server/utils/multerHelpers.js](server/utils/multerHelpers.js) с фабриками для:
+  - `createUploadMiddleware()` — единая конфигурация multer для всех типов файлов (image, document, reminderImage, workplanFile)
+  - `createUploadStorage()` — настройка хранилища (папка, префикс, размер)
+  - `getUploadPath()` — получение пути к файлу
+  - Поддержка разных file filters (regex для изображений, массив типов для документов)
+  - **Status**: Обновлен [server/routes/events.js](server/routes/events.js) как пример; остальные роуты можно обновить по одному
+  - **Результат**: events.js стал на 35 строк короче, остальной логике можно следовать
 - Схемы валидации похожи между сущностями, но реализованы отдельно — можно централизовать типовые правила в [server/middleware/validation.js](server/middleware/validation.js).
 
 ### Неиспользуемый код
