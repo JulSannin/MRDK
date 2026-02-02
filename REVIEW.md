@@ -69,7 +69,7 @@
 - [app/utils/dateHelpers.ts](app/utils/dateHelpers.ts): OK.
 - [app/utils/errorHandler.ts](app/utils/errorHandler.ts): OK.
 - [app/utils/eventHelpers.ts](app/utils/eventHelpers.ts): OK.
-- [app/utils/fileHelpers.ts](app/utils/fileHelpers.ts): Базовый URL изображений зашит в `normalizeImageUrl()` — лучше вынести в env.
+- [app/utils/fileHelpers.ts](app/utils/fileHelpers.ts): ✅ OK (базовый URL читается из env `VITE_BACKEND_URL`).
 - [app/utils/formDataHelpers.ts](app/utils/formDataHelpers.ts): OK.
 - [app/utils/loaderFactory.ts](app/utils/loaderFactory.ts): OK.
 
@@ -142,18 +142,20 @@
 - [app/components/shared/ui/footer/footer/footerSocialLinksData.ts](app/components/shared/ui/footer/footer/footerSocialLinksData.ts): OK.
 
 ### Backend (server/)
-- [server/index.js](server/index.js): CSP может блокировать inline-стили; если фронтенд обслуживается этим сервером, стоит проверить `style-src`. В остальном OK.
+- [server/index.js](server/index.js): ✅ CSP настроена корректно (см. потенциальные улучшения). OK.
 - [server/config.js](server/config.js): OK.
 - [server/lib/logger.js](server/lib/logger.js): OK.
 - [server/database/db.js](server/database/db.js): Файловая БД — возможные проблемы с масштабированием/конкурентным доступом при росте нагрузки.
 - [server/middleware/auth.js](server/middleware/auth.js): OK.
 - [server/middleware/validation.js](server/middleware/validation.js): OK.
 - [server/utils/errorHandler.js](server/utils/errorHandler.js): OK.
-- [server/utils/validation.js](server/utils/validation.js): `isValidPriority()` не используется.
+- [server/utils/validation.js](server/utils/validation.js): ✅ OK (isValidPriority удалена, см. выше).
+- [server/utils/multerHelpers.js](server/utils/multerHelpers.js): ✅ Новая утилита с фабриками для upload конфигурации.
+- [server/utils/validationSchemas.js](server/utils/validationSchemas.js): ✅ Новая утилита с централизованными схемами валидации.
 
 **routes**
 - [server/routes/auth.js](server/routes/auth.js): OK.
-- [server/routes/events.js](server/routes/events.js): Дублируется логика upload/cleanup с другими роутами.
-- [server/routes/documents.js](server/routes/documents.js): Дублируется логика upload/cleanup с другими роутами.
-- [server/routes/reminders.js](server/routes/reminders.js): Дублируется логика upload/cleanup с другими роутами.
-- [server/routes/workplan.js](server/routes/workplan.js): Дублируется логика upload/cleanup с другими роутами.
+- [server/routes/events.js](server/routes/events.js): ✅ OK (использует createUploadMiddleware из multerHelpers, см. выше).
+- [server/routes/documents.js](server/routes/documents.js): ✅ OK (использует createUploadMiddleware из multerHelpers, см. выше).
+- [server/routes/reminders.js](server/routes/reminders.js): ✅ OK (использует createUploadMiddleware из multerHelpers, см. выше).
+- [server/routes/workplan.js](server/routes/workplan.js): ✅ OK (использует createUploadMiddleware из multerHelpers, см. выше).
