@@ -35,7 +35,7 @@ function FooterLinks() {
             <img
                 src={logoSvg}
                 alt="Логотип Мариинский районный дом культуры"
-                className="mt-[10px] mb-[10px] w-[68px] xl:w-[82px] xl:mt-[20px] xl:mb-[20px]"
+                className="block mt-[10px] mb-[10px] w-[68px] xl:w-[82px] xl:mt-[20px] xl:mb-[20px]"
             />
         </div>
     );
