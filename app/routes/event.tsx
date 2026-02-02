@@ -3,10 +3,7 @@ import EventItem from '../components/main/events/EventItem';
 import { api } from '../utils/api';
 import type { Route } from './+types/event';
 
-/**
- * Загрузка данных конкретного события по ID
- * @returns {Object} Объект с данными события
- */
+// Load event by ID
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     try {
         const event = await api.getEvent(Number(params.eventId));
@@ -16,10 +13,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     }
 }
 
-/**
- * Страница отдельного события
- * @returns {JSX.Element} React-компонент
- */
+// Single event page
 export default function Event() {
     const { event } = useLoaderData<typeof clientLoader>();
     return <EventItem event={event} />;

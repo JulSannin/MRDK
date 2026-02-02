@@ -156,33 +156,17 @@ function addCSRFHeaders(options: RequestInit, csrfToken: string): RequestInit {
     return options;
 }
 
-/**
- * API клиент для взаимодействия с бэкендом
- * Предоставляет методы для работы с событиями, документами, памятками, планом работы и авторизацией
- */
+// API client for backend communication
 export const api = {
-    /**
-     * Получает список всех событий
-     * @returns {Promise<Event[]>} Массив событий
-     */
+    // Events
     getEvents: async (signal?: AbortSignal): Promise<Event[]> => {
         return apiFetch<Event[]>(`${API_URL}/events`, { signal });
     },
 
-    /**
-     * Получает событие по ID
-     * @param {number} id - ID события
-     * @returns {Promise<Event>} Объект события
-     */
     getEvent: async (id: number, signal?: AbortSignal): Promise<Event> => {
         return apiFetch<Event>(`${API_URL}/events/${id}`, { signal });
     },
 
-    /**
-     * Создает новое событие
-     * @param {FormData} data - Данные события в FormData
-     * @returns {Promise<Event>} Созданное событие
-     */
     createEvent: async (data: FormData): Promise<Event> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<Event>(`${API_URL}/events`, 
@@ -190,12 +174,6 @@ export const api = {
         );
     },
 
-    /**
-     * Обновляет существующее событие
-     * @param {number} id - ID события
-     * @param {FormData} data - Обновленные данные в FormData
-     * @returns {Promise<Event>} Обновленное событие
-     */
     updateEvent: async (id: number, data: FormData): Promise<Event> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<Event>(`${API_URL}/events/${id}`, 
@@ -203,11 +181,6 @@ export const api = {
         );
     },
 
-    /**
-     * Удаляет событие
-     * @param {number} id - ID события
-     * @returns {Promise<{success: boolean}>} Результат удаления
-     */
     deleteEvent: async (id: number): Promise<{ success: boolean }> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<{ success: boolean }>(`${API_URL}/events/${id}`, 
@@ -215,19 +188,11 @@ export const api = {
         );
     },
 
-    /**
-     * Получает список всех документов
-     * @returns {Promise<Document[]>} Массив документов
-     */
+    // Documents
     getDocuments: async (signal?: AbortSignal): Promise<Document[]> => {
         return apiFetch<Document[]>(`${API_URL}/documents`, { signal });
     },
 
-    /**
-     * Создает новый документ
-     * @param {FormData} data - Данные документа в FormData
-     * @returns {Promise<Document>} Созданный документ
-     */
     createDocument: async (data: FormData): Promise<Document> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<Document>(`${API_URL}/documents`, 
@@ -235,12 +200,6 @@ export const api = {
         );
     },
 
-    /**
-     * Обновляет существующий документ
-     * @param {number} id - ID документа
-     * @param {FormData} data - Обновленные данные в FormData
-     * @returns {Promise<Document>} Обновленный документ
-     */
     updateDocument: async (id: number, data: FormData): Promise<Document> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<Document>(`${API_URL}/documents/${id}`, 
@@ -248,11 +207,6 @@ export const api = {
         );
     },
 
-    /**
-     * Удаляет документ
-     * @param {number} id - ID документа
-     * @returns {Promise<{success: boolean}>} Результат удаления
-     */
     deleteDocument: async (id: number): Promise<{ success: boolean }> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<{ success: boolean }>(`${API_URL}/documents/${id}`, 
@@ -260,19 +214,11 @@ export const api = {
         );
     },
 
-    /**
-     * Получает список всех памяток
-     * @returns {Promise<Reminder[]>} Массив памяток
-     */
+    // Reminders
     getReminders: async (signal?: AbortSignal): Promise<Reminder[]> => {
         return apiFetch<Reminder[]>(`${API_URL}/reminders`, { signal });
     },
 
-    /**
-     * Создает новую памятку
-     * @param {FormData} data - Данные памятки в FormData
-     * @returns {Promise<Reminder>} Созданная памятка
-     */
     createReminder: async (data: FormData): Promise<Reminder> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<Reminder>(`${API_URL}/reminders`, 
@@ -280,12 +226,6 @@ export const api = {
         );
     },
 
-    /**
-     * Обновляет существующую памятку
-     * @param {number} id - ID памятки
-     * @param {FormData} data - Обновленные данные в FormData
-     * @returns {Promise<Reminder>} Обновленная памятка
-     */
     updateReminder: async (id: number, data: FormData): Promise<Reminder> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<Reminder>(`${API_URL}/reminders/${id}`, 
@@ -293,11 +233,6 @@ export const api = {
         );
     },
 
-    /**
-     * Удаляет памятку
-     * @param {number} id - ID памятки
-     * @returns {Promise<{success: boolean}>} Результат удаления
-     */
     deleteReminder: async (id: number): Promise<{ success: boolean }> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<{ success: boolean }>(`${API_URL}/reminders/${id}`, 
@@ -305,19 +240,11 @@ export const api = {
         );
     },
 
-    /**
-     * Получает план работы
-     * @returns {Promise<WorkplanItem[]>} Массив элементов плана работы
-     */
+    // Workplan
     getWorkplan: async (signal?: AbortSignal): Promise<WorkplanItem[]> => {
         return apiFetch<WorkplanItem[]>(`${API_URL}/workplan`, { signal });
     },
 
-    /**
-     * Создает новый элемент плана работы
-     * @param {FormData} data - Данные элемента в FormData
-     * @returns {Promise<WorkplanItem>} Созданный элемент
-     */
     createWorkplanItem: async (data: FormData): Promise<WorkplanItem> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<WorkplanItem>(`${API_URL}/workplan`, 
@@ -325,12 +252,6 @@ export const api = {
         );
     },
 
-    /**
-     * Обновляет элемент плана работы
-     * @param {number} id - ID элемента
-     * @param {FormData} data - Обновленные данные в FormData
-     * @returns {Promise<WorkplanItem>} Обновленный элемент
-     */
     updateWorkplanItem: async (id: number, data: FormData): Promise<WorkplanItem> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<WorkplanItem>(`${API_URL}/workplan/${id}`, 
@@ -338,11 +259,6 @@ export const api = {
         );
     },
 
-    /**
-     * Удаляет элемент плана работы
-     * @param {number} id - ID элемента
-     * @returns {Promise<{success: boolean}>} Результат удаления
-     */
     deleteWorkplanItem: async (id: number): Promise<{ success: boolean }> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<{ success: boolean }>(`${API_URL}/workplan/${id}`, 
@@ -350,12 +266,7 @@ export const api = {
         );
     },
 
-    /**
-     * Выполняет вход пользователя
-     * @param {string} username - Имя пользователя
-     * @param {string} password - Пароль
-     * @returns {Promise<AuthResponse>} Ответ авторизации
-     */
+    // Auth
     login: async (username: string, password: string): Promise<AuthResponse> => {
         const csrfToken = await getCSRFToken();
         return apiFetch<AuthResponse>(`${API_URL}/auth/login`, {
@@ -368,10 +279,6 @@ export const api = {
         });
     },
 
-    /**
-     * Проверяет валидность токена авторизации
-     * @returns {Promise<VerifyTokenResponse>} Результат проверки токена
-     */
     verifyToken: async (signal?: AbortSignal): Promise<VerifyTokenResponse> => {
         try {
             return await apiFetch<VerifyTokenResponse>(`${API_URL}/auth/verify`, { signal });
@@ -383,10 +290,6 @@ export const api = {
         }
     },
 
-    /**
-     * Выполняет выход пользователя
-     * @returns {Promise<{success: boolean}>} Результат выхода
-     */
     logout: async (): Promise<{ success: boolean }> => {
         const csrfToken = await getCSRFToken();
         try {

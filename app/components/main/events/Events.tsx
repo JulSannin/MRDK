@@ -7,19 +7,19 @@ import { useWindowWidth } from '../../../hooks/useWindowWidth';
 import { useNotification } from '../../../contexts/NotificationContext';
 import type { Event } from '../../entities/types';
 
-/** Получить количество карточек в зависимости от ширины экрана */
+// Calculate cards per row based on screen width
 function getEventsPerPage(width: number): number {
-    if (width >= 1024) return 12; // xl и больше - десктоп
-    if (width >= 640) return 8;   // sm и больше - планшет
-    return 6;                       // мобильный
+    if (width >= 1024) return 12; // xl and bigger - desktop
+    if (width >= 640) return 8;   // sm and bigger - tablet
+    return 6;                       // mobile
 }
 
-/** Мета-данные для страницы событий */
+// Events page metadata
 export function meta() {
     return [{ title: 'Наши события' }];
 }
 
-/** Загрузка всех событий */
+// Load all events
 export async function clientLoader() {
     try {
         const events = await api.getEvents();
@@ -30,7 +30,7 @@ export async function clientLoader() {
     }
 }
 
-/** Страница со списком событий */
+// Events page with pagination
 export default function Events() {
     const loaderData = useLoaderData<{ events: Event[]; error?: boolean }>();
     const [currentPage, setCurrentPage] = useState(1);

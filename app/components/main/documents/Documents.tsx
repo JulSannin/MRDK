@@ -4,15 +4,15 @@ import { handleDownload } from '../../../utils/fileHelpers';
 import type { Document } from '../../entities/types';
 import { createDataLoader } from '../../../utils/loaderFactory';
 
-/** Мета-данные для страницы документов */
+// Documents page metadata
 export function meta() {
     return [{ title: 'Документы' }];
 }
 
-/** Загрузка документов */
+// Load documents
 export const clientLoader = createDataLoader(api.getDocuments, 'documents');
 
-/** Страница с документами */
+// Documents page
 export default function Documents() {
     const { documents } = useLoaderData<{ documents: Document[] }>();
 

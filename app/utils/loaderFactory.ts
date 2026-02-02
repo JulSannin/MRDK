@@ -4,12 +4,7 @@ interface LoaderDataResult<T> {
     [key: string]: T[];
 }
 
-/**
- * Создает функцию clientLoader для React Router
- * @param {AsyncFetchFn<T>} fetchFn - Асинхронная функция для загрузки данных
- * @param {string} dataKey - Ключ для сохранения данных в объекте результата
- * @returns {Function} Функция clientLoader
- */
+// Create clientLoader function for React Router
 export function createDataLoader<T>(
     fetchFn: AsyncFetchFn<T>,
     dataKey: string

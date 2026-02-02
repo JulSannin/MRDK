@@ -1,13 +1,13 @@
-/** Базовый URL API */
+// API base URL
 export const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-/** Количество последних событий на главной */
+// Latest events count on home page
 export const LATEST_EVENTS_COUNT = 6;
 
-/** Минимальная длина имени пользователя */
+// Min username length
 export const MIN_USERNAME_LENGTH = 3;
 
-/** Минимальная длина пароля */
+// Min password length
 export const MIN_PASSWORD_LENGTH = 5;
 
 /** Минимальная длина заголовка */

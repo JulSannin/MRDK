@@ -112,9 +112,7 @@ app.use('/api/reminders', remindersRouter);
 app.use('/api/workplan', workplanRouter);
 app.use('/api/auth', authRouter);
 
-/**
- * Проверка работоспособности сервера
- */
+// Health check endpoint
 app.get('/api/health', async (req, res) => {
     try {
         const dbCheck = await db.loadDb().then(() => true).catch(() => false);
@@ -133,17 +131,13 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
-/**
- * Обработчик 404 ошибок
- */
+// 404 handler
 app.use((req, res) => {
     logger.warn(`404 Not Found: ${req.method} ${req.path}`);
     res.status(404).json({ error: 'Endpoint не найден', path: req.path });
 });
 
-/**
- * Глобальный обработчик ошибок
- */
+// Global error handler
 app.use((error, req, res, next) => {
     logger.error(`Unhandled error: ${error.message}`, { stack: error.stack });
     

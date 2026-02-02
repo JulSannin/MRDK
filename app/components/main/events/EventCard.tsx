@@ -11,7 +11,7 @@ interface EventCardProps {
     image: string;
 }
 
-/** Карточка события для сетки */
+// Event card component for grid
 function EventCard({ id, title, shortDescription, date, image }: EventCardProps) {
     const linkPath = `/events/event/${id}`;
     const imageUrl = normalizeImageUrl(image);

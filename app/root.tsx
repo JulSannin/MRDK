@@ -17,7 +17,7 @@ import LoadingFallback from './components/shared/ui/LoadingFallback';
 import type { Route } from './+types/root';
 import './app.css';
 
-/** Подключает внешние ресурсы (шрифты Google) */
+// Link external resources (Google Fonts)
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     {
@@ -31,7 +31,7 @@ export const links: Route.LinksFunction = () => [
     },
 ];
 
-/** Корневой layout приложения с HTML структурой */
+// Root layout with HTML structure
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="ru">
@@ -53,12 +53,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-/** Компонент загрузки во время гидратации */
+// Loading component during hydration
 export function HydrateFallback() {
     return <LoadingFallback />;
 }
 
-/** Главный компонент приложения с провайдерами и структурой */
+// Main app component with providers and structure
 export default function App() {
     return (
         <NotificationProvider>
@@ -77,7 +77,7 @@ export default function App() {
     );
 }
 
-/** Обработчик ошибок маршрутизации */
+// Route error boundary
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     let message = 'Oops!';
     let details = 'An unexpected error occurred.';

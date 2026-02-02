@@ -1,9 +1,4 @@
-/**
- * Инициирует скачивание файла через создание временной ссылки
- * @param {string} fileUrl - URL файла для скачивания
- * @param {string} fileName - Имя файла для сохранения
- * @returns {void}
- */
+// Download file from URL
 export function handleDownload(fileUrl: string, fileName: string): void {
     try {
         const link = document.createElement('a');
@@ -18,12 +13,7 @@ export function handleDownload(fileUrl: string, fileName: string): void {
     }
 }
 
-/**
- * Нормализует URL изображения с учетом относительных путей
- * @param {string | null | undefined} url - Исходный URL
- * @param {string} baseUrl - Базовый URL бэкенда
- * @returns {string} Нормализованный URL
- */
+// Normalize image URLs with backend base URL
 export function normalizeImageUrl(
     url: string | null | undefined,
     baseUrl = import.meta.env.VITE_BACKEND_URL || ''

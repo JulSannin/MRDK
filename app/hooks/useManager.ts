@@ -22,12 +22,7 @@ type ValidationRule = {
 
 type ValidationSchema = Record<string, ValidationRule>;
 
-/**
- * Выполняет базовую валидацию данных формы
- * @param {Record<string, any>} data - Данные формы для валидации
- * @param {ValidationSchema} schema - Схема валидации (опционально)
- * @returns {string[]} Массив сообщений об ошибках
- */
+// Basic form data validation
 function validateFormData(data: Record<string, unknown>, schema?: ValidationSchema): string[] {
     const errors: string[] = [];
 
@@ -131,13 +126,7 @@ function validateFormData(data: Record<string, unknown>, schema?: ValidationSche
     return errors;
 }
 
-/**
- * Универсальный хук для CRUD операций в админ-панели
- * @template T - Тип элемента с обязательным полем id
- * @template F - Тип данных формы
- * @param {Object} config - Конфигурация хука
- * @returns {Object} Объект с состояниями и методами управления
- */
+// Universal hook for CRUD operations in admin panel
 export function useManager<T extends { id: number }, F extends Record<string, unknown>, D = F>({
     initialFormData,
     loadFn,

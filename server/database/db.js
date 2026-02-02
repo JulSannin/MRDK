@@ -12,7 +12,7 @@ const dbPath = join(__dirname, 'db.json');
 
 let writeQueue = Promise.resolve();
 
-/** Структура базы данных по умолчанию */
+// Default database structure
 const defaultDb = {
     events: [],
     documents: [],
@@ -28,10 +28,7 @@ const defaultDb = {
     },
 };
 
-/**
- * Загружает базу данных из файла
- * @returns {Promise<Object>} Объект с данными БД
- */
+// Load database from file
 export async function loadDb() {
     try {
         const data = await fs.readFile(dbPath, 'utf-8');
@@ -45,11 +42,7 @@ export async function loadDb() {
     }
 }
 
-/**
- * Сохраняет базу данных в файл с защитой от race condition
- * @param {Object} db - Объект с данными БД для сохранения
- * @returns {Promise<void>}
- */
+// Save database to file with race condition protection
 export async function saveDb(db) {
     writeQueue = writeQueue.then(async () => {
         try {
@@ -65,14 +58,11 @@ export async function saveDb(db) {
     return writeQueue;
 }
 
-/**
- * Инициализирует базу данных и создает пользователя-администратора по умолчанию
- * @returns {Promise<void>}
- */
+// Initialize database and create default admin user
 export async function initDatabase() {
     let db = await loadDb();
 
-    // Создаем админа по умолчанию если нет пользователей
+    // Create default admin if no users exist
     if (db.users.length === 0) {
         const defaultUsername = process.env.ADMIN_USERNAME || 'admin';
         const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
@@ -88,32 +78,19 @@ export async function initDatabase() {
     }
 }
 
-/** Вспомогательные функции для работы с базой данных */
+// Database helper functions
 export const db = {
-    /**
-     * Получает все события
-     * @returns {Promise<Array>} Массив событий
-     */
+    // Events
     async getAllEvents() {
         const data = await loadDb();
         return data.events;
     },
 
-    /**
-     * Получает событие по ID
-     * @param {number} id - ID события
-     * @returns {Promise<Object|undefined>} Объект события или undefined
-     */
     async getEvent(id) {
         const data = await loadDb();
         return data.events.find((e) => e.id === id);
     },
 
-    /**
-     * Создает новое событие
-     * @param {Object} event - Данные события
-     * @returns {Promise<Object>} Созданное событие с ID
-     */
     async createEvent(event) {
         const data = await loadDb();
         const newEvent = {
@@ -127,12 +104,6 @@ export const db = {
         return newEvent;
     },
 
-    /**
-     * Обновляет событие по ID
-     * @param {number} id - ID события
-     * @param {Object} updates - Поля для обновления
-     * @returns {Promise<Object|null>} Обновленное событие или null
-     */
     async updateEvent(id, updates) {
         const data = await loadDb();
         const index = data.events.findIndex((e) => e.id === id);
@@ -146,11 +117,6 @@ export const db = {
         return data.events[index];
     },
 
-    /**
-     * Удаляет событие по ID
-     * @param {number} id - ID события
-     * @returns {Promise<boolean>} true при успешном удалении
-     */
     async deleteEvent(id) {
         const data = await loadDb();
         data.events = data.events.filter((e) => e.id !== id);
@@ -158,30 +124,17 @@ export const db = {
         return true;
     },
 
-    /**
-     * Получает все документы
-     * @returns {Promise<Array>} Массив документов
-     */
+    // Documents
     async getAllDocuments() {
         const data = await loadDb();
         return data.documents;
     },
 
-    /**
-     * Получает документ по ID
-     * @param {number} id - ID документа
-     * @returns {Promise<Object|undefined>} Объект документа или undefined
-     */
     async getDocument(id) {
         const data = await loadDb();
         return data.documents.find((d) => d.id === id);
     },
 
-    /**
-     * Создает новый документ
-     * @param {Object} doc - Данные документа
-     * @returns {Promise<Object>} Созданный документ с ID
-     */
     async createDocument(doc) {
         const data = await loadDb();
         const newDoc = {
@@ -195,12 +148,6 @@ export const db = {
         return newDoc;
     },
 
-    /**
-     * Обновляет документ по ID
-     * @param {number} id - ID документа
-     * @param {Object} updates - Поля для обновления
-     * @returns {Promise<Object|null>} Обновленный документ или null
-     */
     async updateDocument(id, updates) {
         const data = await loadDb();
         const index = data.documents.findIndex((d) => d.id === id);
@@ -214,11 +161,6 @@ export const db = {
         return data.documents[index];
     },
 
-    /**
-     * Удаляет документ по ID
-     * @param {number} id - ID документа
-     * @returns {Promise<boolean>} true при успешном удалении
-     */
     async deleteDocument(id) {
         const data = await loadDb();
         data.documents = data.documents.filter((d) => d.id !== id);
@@ -226,30 +168,17 @@ export const db = {
         return true;
     },
 
-    /**
-     * Получает все памятки
-     * @returns {Promise<Array>} Массив памяток
-     */
+    // Reminders
     async getAllReminders() {
         const data = await loadDb();
         return data.reminders;
     },
 
-    /**
-     * Получает памятку по ID
-     * @param {number} id - ID памятки
-     * @returns {Promise<Object|undefined>} Объект памятки или undefined
-     */
     async getReminder(id) {
         const data = await loadDb();
         return data.reminders.find((r) => r.id === id);
     },
 
-    /**
-     * Создает новую памятку
-     * @param {Object} reminder - Данные памятки
-     * @returns {Promise<Object>} Созданная памятка с ID
-     */
     async createReminder(reminder) {
         const data = await loadDb();
         const newReminder = {
@@ -264,12 +193,6 @@ export const db = {
         return newReminder;
     },
 
-    /**
-     * Обновляет памятку по ID
-     * @param {number} id - ID памятки
-     * @param {Object} updates - Поля для обновления
-     * @returns {Promise<Object|null>} Обновленная памятка или null
-     */
     async updateReminder(id, updates) {
         const data = await loadDb();
         const index = data.reminders.findIndex((r) => r.id === id);
@@ -283,11 +206,6 @@ export const db = {
         return data.reminders[index];
     },
 
-    /**
-     * Удаляет памятку по ID
-     * @param {number} id - ID памятки
-     * @returns {Promise<boolean>} true при успешном удалении
-     */
     async deleteReminder(id) {
         const data = await loadDb();
         data.reminders = data.reminders.filter((r) => r.id !== id);
@@ -295,30 +213,17 @@ export const db = {
         return true;
     },
 
-    /**
-     * Получает весь план работы
-     * @returns {Promise<Array>} Массив элементов плана работы
-     */
+    // Workplan
     async getAllWorkplan() {
         const data = await loadDb();
         return data.workplan;
     },
 
-    /**
-     * Получает элемент плана работы по ID
-     * @param {number} id - ID элемента
-     * @returns {Promise<Object|undefined>} Объект элемента или undefined
-     */
     async getWorkplanItem(id) {
         const data = await loadDb();
         return data.workplan.find((w) => w.id === id);
     },
 
-    /**
-     * Создает новый элемент плана работы
-     * @param {Object} item - Данные элемента
-     * @returns {Promise<Object>} Созданный элемент с ID
-     */
     async createWorkplanItem(item) {
         const data = await loadDb();
         const newItem = {
@@ -332,12 +237,6 @@ export const db = {
         return newItem;
     },
 
-    /**
-     * Обновляет элемент плана работы по ID
-     * @param {number} id - ID элемента
-     * @param {Object} updates - Поля для обновления
-     * @returns {Promise<Object|null>} Обновленный элемент или null
-     */
     async updateWorkplanItem(id, updates) {
         const data = await loadDb();
         const index = data.workplan.findIndex((w) => w.id === id);
@@ -351,11 +250,6 @@ export const db = {
         return data.workplan[index];
     },
 
-    /**
-     * Удаляет элемент плана работы по ID
-     * @param {number} id - ID элемента
-     * @returns {Promise<boolean>} true при успешном удалении
-     */
     async deleteWorkplanItem(id) {
         const data = await loadDb();
         data.workplan = data.workplan.filter((w) => w.id !== id);
@@ -363,31 +257,17 @@ export const db = {
         return true;
     },
 
-    /**
-     * Получает пользователя по имени
-     * @param {string} username - Имя пользователя
-     * @returns {Promise<Object|undefined>} Объект пользователя или undefined
-     */
+    // Users
     async getUserByUsername(username) {
         const data = await loadDb();
         return data.users.find((u) => u.username === username);
     },
 
-    /**
-     * Получает пользователя по ID
-     * @param {number} id - ID пользователя
-     * @returns {Promise<Object|undefined>} Объект пользователя или undefined
-     */
     async getUserById(id) {
         const data = await loadDb();
         return data.users.find((u) => u.id === id);
     },
 
-    /**
-     * Создает нового пользователя
-     * @param {Object} user - Данные пользователя
-     * @returns {Promise<Object>} Созданный пользователь с ID
-     */
     async createUser(user) {
         const data = await loadDb();
         const newUser = {

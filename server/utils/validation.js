@@ -1,13 +1,9 @@
-/**
- * Проверяет корректность даты
- * @param {string} value - Дата в формате строки
- * @returns {boolean} true если дата валидна
- */
+// Check if date is valid
 export const isValidDate = (value) => {
     if (!value) return false;
     const date = new Date(value);
     return !Number.isNaN(date.getTime());
 };
 
-/** Допустимые значения приоритета для памяток */
+// Allowed reminder priority values
 export const ALLOWED_PRIORITIES = new Set(['high', 'medium', 'low']);

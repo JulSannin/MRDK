@@ -5,10 +5,7 @@ import { api } from '../utils/api';
 import { sortEventsByDate } from '../utils/eventHelpers';
 import { LATEST_EVENTS_COUNT } from '../config/constants';
 
-/**
- * Мета-данные для главной страницы
- * @returns {Array} Массив мета-тегов
- */
+// Home page metadata
 export function meta({}: Route.MetaArgs) {
     return [
         { title: 'Мариинский районный дом культуры' },
@@ -16,10 +13,7 @@ export function meta({}: Route.MetaArgs) {
     ];
 }
 
-/**
- * Загрузка последних событий для главной страницы
- * @returns {Object} Объект с массивом событий
- */
+// Load latest events for home page
 export async function clientLoader() {
     try {
         const events = await api.getEvents();
@@ -31,10 +25,7 @@ export async function clientLoader() {
     }
 }
 
-/**
- * Главная страница с отображением последних событий
- * @returns {JSX.Element} React-компонент
- */
+// Home page with latest events
 export default function Home() {
     const { events } = useLoaderData<typeof clientLoader>();
     return (

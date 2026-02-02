@@ -1,6 +1,6 @@
 import { ClubsData } from './clubsData';
 
-/** Таблица с информацией о клубах и кружках */
+// Clubs and circles table component
 export default function ClubsTable() {
     return (
         <div className="overflow-x-auto mt-[20px] mb-[20px] m-auto max-w-[1260px] text-[16px]">

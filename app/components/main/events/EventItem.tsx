@@ -3,7 +3,7 @@ import type { Event } from '../../entities/types';
 import { formatEventDate } from '../../../utils/dateHelpers';
 import { normalizeImageUrl } from '../../../utils/fileHelpers';
 
-/** Полная страница отдельного события */
+// Single event page component
 export default function EventItem({ event }: { event: Event }) {
     const navigate = useNavigate();
     const imageUrl = normalizeImageUrl(event.image);

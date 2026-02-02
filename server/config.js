@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-/** Секретный ключ для подписи JWT токенов */
+// JWT token secret
 export const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV !== 'production' ? 'dev-secret-change-in-production' : undefined);
 
 if (!JWT_SECRET) {
@@ -13,16 +13,16 @@ if (process.env.NODE_ENV === 'production' && JWT_SECRET.includes('dev-secret')) 
     throw new Error('Please set a strong JWT_SECRET in production');
 }
 
-/** Порт сервера */
+// Server port
 export const PORT = process.env.PORT || 5000;
 
-/** Режим работы приложения */
+// App environment
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
-/** Уровень логирования */
+// Logging level
 export const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 
-/** Политика SameSite для cookies */
+// Cookie SameSite policy
 const rawSameSite = process.env.COOKIE_SAMESITE?.toLowerCase();
 const allowedSameSite = new Set(['lax', 'strict', 'none']);
 export const COOKIE_SAMESITE = allowedSameSite.has(rawSameSite)
@@ -33,21 +33,21 @@ if (rawSameSite && !allowedSameSite.has(rawSameSite)) {
     throw new Error('COOKIE_SAMESITE must be one of: lax, strict, none');
 }
 
-/** Требовать ли аутентификацию для доступа к загруженным файлам */
+// Require auth for uploaded files
 export const UPLOADS_REQUIRE_AUTH = process.env.UPLOADS_REQUIRE_AUTH === 'true';
 
-/** Разрешенные origins для CORS в режиме разработки */
+// Default dev origins for CORS
 const defaultDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
 
-/** Список разрешенных origins для CORS */
+// CORS allowed origins
 export const CORS_ORIGINS = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
     : (NODE_ENV !== 'production' ? defaultDevOrigins : []);
 
-/** Количество раундов для хеширования паролей bcrypt */
+// Bcrypt hashing rounds
 export const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '10', 10);
 
-/** Rate limiting конфигурация */
+// Rate limiting config
 export const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10); // 15 минут по умолчанию
 export const RATE_LIMIT_AUTH_MAX = parseInt(process.env.RATE_LIMIT_AUTH_MAX || '20', 10);
 export const RATE_LIMIT_MUTATION_MAX = parseInt(process.env.RATE_LIMIT_MUTATION_MAX || '50', 10);

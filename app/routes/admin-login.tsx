@@ -1,5 +1,2 @@
-/**
- * Экспорт компонента страницы входа в админ-панель
- * @returns {JSX.Element|Object} Компонент и мета-данные
- */
+// Re-export admin login page component
 export { default, meta } from '../components/features/auth/AdminLogin';

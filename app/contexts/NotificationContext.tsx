@@ -20,12 +20,7 @@ export interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-/**
- * Провайдер контекста уведомлений
- * @param {Object} props - Пропсы компонента
- * @param {ReactNode} props.children - Дочерние элементы
- * @returns {JSX.Element} Провайдер с системой уведомлений
- */
+// Notification provider component
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
@@ -97,10 +92,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     );
 }
 
-/**
- * Хук для использования системы уведомлений
- * @returns {NotificationContextType} Объект с методами для показа уведомлений
- */
+// Notification system hook
 export function useNotification() {
     const context = useContext(NotificationContext);
     if (!context) {

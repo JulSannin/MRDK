@@ -3,7 +3,7 @@ import { usefulLinksData } from './usefulLinksData';
 import { useWindowWidth } from '../../../hooks/useWindowWidth';
 import { useCarousel } from '../../../hooks/useCarousel';
 
-/** Карусель с полезными ссылками */
+// Useful links carousel component
 export default function UsefulLinksCarousel() {
     const windowWidth = useWindowWidth(1024);
     const cardsToShow = windowWidth < 1024 ? 2 : 3;

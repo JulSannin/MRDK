@@ -1,6 +1,4 @@
-/**
- * Кастомный класс ошибок API
- */
+// Custom API error class
 export class ApiError extends Error {
     constructor(
         public message: string,
@@ -19,11 +17,7 @@ export type ErrorDetails = {
     original?: unknown;
 };
 
-/**
- * Извлекает текстовое сообщение ошибки из любого типа ошибки
- * @param {unknown} error - Ошибка любого типа
- * @returns {string} Текстовое сообщение об ошибке
- */
+// Extract error message from any error type
 export function getErrorMessage(error: unknown): string {
     if (error instanceof ApiError) {
         return error.message;
@@ -40,11 +34,7 @@ export function getErrorMessage(error: unknown): string {
     return 'Произошла неизвестная ошибка';
 }
 
-/**
- * Возвращает расширенные детали ошибки
- * @param {unknown} error - Ошибка любого типа
- * @returns {ErrorDetails} Детали ошибки
- */
+// Get full error details
 export function getErrorDetails(error: unknown): ErrorDetails {
     if (error instanceof ApiError) {
         return { message: error.message, status: error.status, code: error.code, original: error };
@@ -61,15 +51,10 @@ export function getErrorDetails(error: unknown): ErrorDetails {
     return { message: 'Произошла неизвестная ошибка', original: error };
 }
 
-/**
- * Обрабатывает ошибку API с логированием в dev режиме
- * @param {unknown} error - Ошибка для обработки
- * @returns {never} Выбрасывает ApiError
- */
+// Handle API error with logging
 export function handleApiError(error: unknown): never {
     const details = getErrorDetails(error);
     
-    // В продакшене здесь можно добавить логирование в Sentry
     if (import.meta.env.DEV) {
         console.error('API Error:', details);
     }
@@ -77,9 +62,7 @@ export function handleApiError(error: unknown): never {
     throw new ApiError(details.message, details.status, details.code);
 }
 
-/**
- * Константы сообщений об ошибках авторизации
- */
+// Auth error messages
 export const AUTH_ERRORS = {
     INVALID_CREDENTIALS: 'Неверный логин или пароль',
     TOKEN_EXPIRED: 'Сессия истекла. Войдите снова',
@@ -87,9 +70,7 @@ export const AUTH_ERRORS = {
     FORBIDDEN: 'Недостаточно прав доступа',
 } as const;
 
-/**
- * Константы сообщений об общих ошибках
- */
+// Common error messages
 export const COMMON_ERRORS = {
     NETWORK_ERROR: 'Ошибка сети. Проверьте подключение',
     SERVER_ERROR: 'Ошибка сервера. Попробуйте позже',

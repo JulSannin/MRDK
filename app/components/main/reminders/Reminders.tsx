@@ -5,15 +5,15 @@ import type { Reminder } from '../../entities/types';
 import { createDataLoader } from '../../../utils/loaderFactory';
 import { normalizeImageUrl } from '../../../utils/fileHelpers';
 
-/** Мета-данные для страницы памяток */
+// Reminders page metadata
 export function meta() {
     return [{ title: 'Памятки' }];
 }
 
-/** Загрузка памяток */
+// Load reminders
 export const clientLoader = createDataLoader(api.getReminders, 'reminders');
 
-/** Страница с памятками */
+// Reminders page
 export default function Reminders() {
     const { reminders } = useLoaderData<{ reminders: Reminder[] }>();
     const [selectedImage, setSelectedImage] = useState<string | null>(null);

@@ -14,12 +14,7 @@ interface ConfirmDialogContextType {
 
 const ConfirmDialogContext = createContext<ConfirmDialogContextType | undefined>(undefined);
 
-/**
- * Провайдер контекста диалогов подтверждения
- * @param {Object} props - Пропсы компонента
- * @param {ReactNode} props.children - Дочерние элементы
- * @returns {JSX.Element} Провайдер с системой модальных окон подтверждения
- */
+// Confirm dialog provider component
 export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [options, setOptions] = useState<ConfirmDialogOptions | null>(null);
@@ -159,10 +154,7 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
     );
 }
 
-/**
- * Хук для использования диалогов подтверждения
- * @returns {ConfirmDialogContextType} Объект с методом confirm для вызова диалога
- */
+// Confirm dialog hook
 export function useConfirmDialog() {
     const context = useContext(ConfirmDialogContext);
     if (!context) {

@@ -1,5 +1,2 @@
-/**
- * Экспорт компонента страницы с документами
- * @returns {JSX.Element|Object} Компонент, мета-данные и загрузчик данных
- */
+// Re-export documents page component
 export { default, meta, clientLoader } from '../components/main/documents/Documents';

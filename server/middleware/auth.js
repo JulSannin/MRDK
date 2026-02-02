@@ -1,12 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config.js';
 
-/**
- * Middleware для проверки JWT токена
- * @param {Object} req - Express request
- * @param {Object} res - Express response
- * @param {Function} next - Next middleware
- */
+// JWT authentication middleware
 export function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const bearerToken = authHeader && authHeader.split(' ')[1];
@@ -26,12 +21,7 @@ export function authenticateToken(req, res, next) {
     });
 }
 
-/**
- * Middleware для проверки прав администратора
- * @param {Object} req - Express request
- * @param {Object} res - Express response
- * @param {Function} next - Next middleware
- */
+// Admin role verification middleware
 export function requireAdmin(req, res, next) {
     if (req.user?.role !== 'admin') {
         return res.status(403).json({ error: 'Недостаточно прав' });

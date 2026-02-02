@@ -1,12 +1,7 @@
 export type FormDataFields = Record<string, string | number | boolean | null | undefined>;
 export type FormDataFiles = Record<string, File | null | undefined>;
 
-/**
- * Создает объект FormData из полей и файлов
- * @param {FormDataFields} fields - Объект с полями формы
- * @param {FormDataFiles} files - Объект с файлами для загрузки
- * @returns {FormData} Сформированный объект FormData
- */
+// Build FormData from fields and files
 export function buildFormData(fields: FormDataFields, files: FormDataFiles = {}): FormData {
     const formData = new FormData();
 

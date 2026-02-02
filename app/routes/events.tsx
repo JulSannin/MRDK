@@ -1,5 +1,2 @@
-/**
- * Экспорт компонента страницы со всеми событиями
- * @returns {JSX.Element|Object} Компонент, мета-данные и загрузчик данных
- */
+// Re-export events page component
 export { default, meta, clientLoader } from '../components/main/events/Events';

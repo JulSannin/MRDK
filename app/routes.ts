@@ -1,6 +1,6 @@
 import { type RouteConfig, index, route } from '@react-router/dev/routes';
 
-/** Конфигурация маршрутов приложения */
+// Application routes configuration
 export default [
     index('routes/home.tsx'),
     route('events', 'routes/events.tsx'),

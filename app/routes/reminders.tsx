@@ -1,5 +1,2 @@
-/**
- * Экспорт компонента страницы с памятками
- * @returns {JSX.Element|Object} Компонент, мета-данные и загрузчик данных
- */
+// Re-export reminders page component
 export { default, meta, clientLoader } from '../components/main/reminders/Reminders';

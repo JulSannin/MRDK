@@ -1,8 +1,4 @@
-/**
- * Get error message from different error types
- * @param {Error | string} error - Error object or string
- * @returns {string} Error message
- */
+// Get error message from different error types
 export function getErrorMessage(error) {
     if (error instanceof Error) {
         return error.message || 'Неизвестная ошибка';
@@ -10,11 +6,7 @@ export function getErrorMessage(error) {
     return String(error) || 'Неизвестная ошибка';
 }
 
-/**
- * Validate and parse ID parameter
- * @param {string | number} id - ID to validate
- * @returns {{valid: boolean, id?: number, error?: string}} Validation result
- */
+// Validate and parse ID parameter
 export function validateId(id) {
     const parsed = Number.parseInt(String(id), 10);
 

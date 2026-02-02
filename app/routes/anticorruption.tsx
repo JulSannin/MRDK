@@ -1,17 +1,11 @@
 import type { Route } from './+types/anticorruption';
 
-/**
- * Мета-данные для страницы противодействия коррупции
- * @returns {Array} Массив мета-тегов
- */
+// Anticorruption page metadata
 export function meta({}: Route.MetaArgs) {
     return [{ title: 'Противодействие коррупции' }];
 }
 
-/**
- * Страница противодействия коррупции
- * @returns {JSX.Element} React-компонент
- */
+// Anticorruption page (under development)
 export default function Anticorruption() {
     return (
         <>

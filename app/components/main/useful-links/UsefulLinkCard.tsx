@@ -4,7 +4,7 @@ interface UsefulLinkCardProps {
     link: UsefulLink;
 }
 
-/** Карточка полезной ссылки */
+// Useful link card component
 export default function UsefulLinkCard({ link }: UsefulLinkCardProps) {
     return (
         <a

@@ -1,18 +1,12 @@
 import type { Route } from './+types/clubs';
 import ClubsTable from '../components/main/clubs/ClubsTable';
 
-/**
- * Мета-данные для страницы клубов
- * @returns {Array} Массив мета-тегов
- */
+// Clubs page metadata
 export function meta({}: Route.MetaArgs) {
     return [{ title: 'Клубы' }];
 }
 
-/**
- * Страница со списком клубов
- * @returns {JSX.Element} React-компонент
- */
+// Clubs page
 export default function Clubs() {
     return (
         <>

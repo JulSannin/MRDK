@@ -4,15 +4,15 @@ import { handleDownload } from '../../../utils/fileHelpers';
 import type { WorkplanItem } from '../../entities/types';
 import { createDataLoader } from '../../../utils/loaderFactory';
 
-/** Мета-данные для страницы плана работы */
+// Workplan page metadata
 export function meta() {
     return [{ title: 'План работы' }];
 }
 
-/** Загрузка плана работы */
+// Load workplan
 export const clientLoader = createDataLoader(api.getWorkplan, 'workplan');
 
-/** Страница с планом работы */
+// Workplan page
 export default function Workplan() {
     const { workplan } = useLoaderData<{ workplan: WorkplanItem[] }>();
 
