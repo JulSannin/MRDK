@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import EventCard from './EventCard';
 import { api } from '../../../utils/api';
@@ -64,29 +64,35 @@ export default function Events() {
         }
     };
 
-    const totalPages = Math.ceil(events.length / eventsPerPage);
-    const startIndex = (currentPage - 1) * eventsPerPage;
-    const endIndex = startIndex + eventsPerPage;
-    const currentEvents = events.slice(startIndex, endIndex);
+    const totalPages = useMemo(
+        () => Math.ceil(events.length / eventsPerPage),
+        [events.length, eventsPerPage]
+    );
 
-    const goToNextPage = () => {
+    const currentEvents = useMemo(() => {
+        const startIndex = (currentPage - 1) * eventsPerPage;
+        const endIndex = startIndex + eventsPerPage;
+        return events.slice(startIndex, endIndex);
+    }, [currentPage, events, eventsPerPage]);
+
+    const goToNextPage = useCallback(() => {
         if (currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    };
+    }, [currentPage, totalPages]);
 
-    const goToPrevPage = () => {
+    const goToPrevPage = useCallback(() => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    };
+    }, [currentPage]);
 
-    const goToPage = (page: number) => {
+    const goToPage = useCallback((page: number) => {
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    }, []);
 
     if (error) {
         return (
@@ -138,10 +144,9 @@ export default function Events() {
                     <button
                         onClick={goToPrevPage}
                         disabled={currentPage === 1}
-                        className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                        style={{ backgroundColor: currentPage === 1 ? undefined : 'var(--color-primary)' }}
-                        onMouseEnter={(e) => { if (currentPage !== 1) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'; }}
-                        onMouseLeave={(e) => { if (currentPage !== 1) e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
+                        className={`w-full sm:w-auto px-3 sm:px-4 py-2 rounded text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors ${
+                            currentPage === 1 ? '' : 'app-bg-primary app-hover-primary'
+                        }`}
                         aria-label="Предыдущая страница"
                     >
                         ← Назад
@@ -154,10 +159,9 @@ export default function Events() {
                                 onClick={() => goToPage(page)}
                                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded transition-colors ${
                                     page === currentPage
-                                        ? 'text-white font-bold'
+                                        ? 'text-white font-bold app-bg-primary'
                                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
-                                style={page === currentPage ? { backgroundColor: 'var(--color-primary)' } : undefined}
                                 aria-label={`Страница ${page}`}
                                 aria-current={page === currentPage ? 'page' : undefined}
                             >
@@ -169,10 +173,9 @@ export default function Events() {
                     <button
                         onClick={goToNextPage}
                         disabled={currentPage === totalPages}
-                        className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                        style={{ backgroundColor: currentPage === totalPages ? undefined : 'var(--color-primary)' }}
-                        onMouseEnter={(e) => { if (currentPage !== totalPages) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'; }}
-                        onMouseLeave={(e) => { if (currentPage !== totalPages) e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
+                        className={`w-full sm:w-auto px-3 sm:px-4 py-2 rounded text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors ${
+                            currentPage === totalPages ? '' : 'app-bg-primary app-hover-primary'
+                        }`}
                         aria-label="Следующая страница"
                     >
                         Вперёд →

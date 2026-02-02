@@ -102,7 +102,7 @@ export default function DocumentsManager() {
                             <input
                                 type="text"
                                 value={manager.formData.title}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, title: e.target.value })}
+                                onChange={(e) => manager.setField('title', e.target.value)}
                                 required
                                 className="w-full px-3 py-2 text-base border rounded focus:ring-2 focus:ring-blue-500"
                             />
@@ -111,7 +111,7 @@ export default function DocumentsManager() {
                             <label className="block text-sm font-medium mb-1">Описание</label>
                             <textarea
                                 value={manager.formData.description}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, description: e.target.value })}
+                                onChange={(e) => manager.setField('description', e.target.value)}
                                 rows={3}
                                 className="w-full px-3 py-2 text-base border rounded focus:ring-2 focus:ring-blue-500"
                             />
@@ -122,7 +122,7 @@ export default function DocumentsManager() {
                                 type="text"
                                 list="categories-list"
                                 value={manager.formData.category}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, category: e.target.value })}
+                                onChange={(e) => manager.setField('category', e.target.value)}
                                 placeholder="Выберите или введите категорию"
                                 className="w-full px-3 py-2 text-base border rounded focus:ring-2 focus:ring-blue-500"
                             />

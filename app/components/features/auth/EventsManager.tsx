@@ -50,11 +50,6 @@ export default function EventsManager() {
             date: '',
         },
         loadFn: api.getEvents,
-        validationSchema: {
-            title: { required: true, minLength: 3, maxLength: 255 },
-            fullDescription: { required: true, minLength: 20, maxLength: 5000 },
-            date: { required: true, type: 'date' },
-        },
         createFn: async (data: EventFormData) => {
             const shortDescription = buildShortDescription(data.fullDescription);
             const formData = buildFormData(
@@ -156,7 +151,7 @@ export default function EventsManager() {
                             <input
                                 type="text"
                                 value={manager.formData.title}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, title: e.target.value })}
+                                onChange={(e) => manager.setField('title', e.target.value)}
                                 required
                                 className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 ${
                                     validationErrors.title ? 'border-red-500' : ''
@@ -171,7 +166,7 @@ export default function EventsManager() {
                             <label className="block text-sm font-medium mb-1">Описание</label>
                             <textarea
                                 value={manager.formData.fullDescription}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, fullDescription: e.target.value })}
+                                onChange={(e) => manager.setField('fullDescription', e.target.value)}
                                 required
                                 rows={4}
                                 className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 ${
@@ -188,7 +183,7 @@ export default function EventsManager() {
                             <input
                                 type="date"
                                 value={manager.formData.date}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, date: e.target.value })}
+                                onChange={(e) => manager.setField('date', e.target.value)}
                                 required
                                 className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 ${
                                     validationErrors.date ? 'border-red-500' : ''

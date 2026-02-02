@@ -16,7 +16,7 @@ const initialFormData = {
 export default function RemindersManager() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     
-    const manager = useManager<Reminder, typeof initialFormData>({
+    const manager = useManager<Reminder, typeof initialFormData, FormData>({
         initialFormData,
         loadFn: api.getReminders,
         validationSchema: {
@@ -82,7 +82,7 @@ export default function RemindersManager() {
                             <input
                                 type="text"
                                 value={manager.formData.title}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, title: e.target.value })}
+                                onChange={(e) => manager.setField('title', e.target.value)}
                                 required
                                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                             />
@@ -91,7 +91,7 @@ export default function RemindersManager() {
                             <label className="block text-sm font-medium mb-1">Описание</label>
                             <textarea
                                 value={manager.formData.description}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, description: e.target.value })}
+                                onChange={(e) => manager.setField('description', e.target.value)}
                                 required
                                 rows={4}
                                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
@@ -102,7 +102,7 @@ export default function RemindersManager() {
                             <input
                                 type="date"
                                 value={manager.formData.date}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, date: e.target.value })}
+                                onChange={(e) => manager.setField('date', e.target.value)}
                                 required
                                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                             />
@@ -111,7 +111,7 @@ export default function RemindersManager() {
                             <label className="block text-sm font-medium mb-1">Приоритет</label>
                             <select
                                 value={manager.formData.priority}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, priority: e.target.value as 'high' | 'medium' | 'low' })}
+                                onChange={(e) => manager.setField('priority', e.target.value as 'high' | 'medium' | 'low')}
                                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value="high">Высокий</option>

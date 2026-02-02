@@ -9,22 +9,19 @@ export default function ClubsTable() {
                 <thead>
                     <tr>
                         <th></th>
-                        <th className="border p-4 text-left text-white font-bold" style={{ backgroundColor: 'var(--color-primary)' }}>Название клуба</th>
-                        <th className="border p-4 text-left text-white font-bold" style={{ backgroundColor: 'var(--color-primary)' }}>Руководитель</th>
+                        <th className="border p-4 text-left text-white font-bold app-bg-primary">Название клуба</th>
+                        <th className="border p-4 text-left text-white font-bold app-bg-primary">Руководитель</th>
                     </tr>
                 </thead>
                 <tbody>
                     {ClubsData.map((club, index) => (
                         <tr 
                             key={club.id} 
-                            className={`${index % 2 === 0 ? 'bg-white' : ''} transition-colors`}
-                            style={index % 2 !== 0 ? { backgroundColor: 'rgba(253, 202, 64, 0.1)' } : undefined}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(253, 202, 64, 0.2)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'white' : 'rgba(253, 202, 64, 0.1)'; }}
+                            className={`${index % 2 === 0 ? 'bg-white' : 'app-bg-yellow-soft'} transition-colors app-hover-yellow`}
                         >
-                            <td className="border border-[#D9D9D9] p-4" style={{ color: 'var(--color-dark)' }}>{club.id}</td>
-                            <td className="border border-[#D9D9D9] p-4" style={{ color: 'var(--color-dark)' }}>{club.name}</td>
-                            <td className="border border-[#D9D9D9] p-4" style={{ color: 'var(--color-dark)' }}>{club.leader}</td>
+                            <td className="border border-[#D9D9D9] p-4 app-text-dark">{club.id}</td>
+                            <td className="border border-[#D9D9D9] p-4 app-text-dark">{club.name}</td>
+                            <td className="border border-[#D9D9D9] p-4 app-text-dark">{club.leader}</td>
                         </tr>
                     ))}
                 </tbody>

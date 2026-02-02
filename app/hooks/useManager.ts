@@ -28,7 +28,7 @@ type ValidationSchema = Record<string, ValidationRule>;
  * @param {ValidationSchema} schema - Схема валидации (опционально)
  * @returns {string[]} Массив сообщений об ошибках
  */
-function validateFormData(data: Record<string, any>, schema?: ValidationSchema): string[] {
+function validateFormData(data: Record<string, unknown>, schema?: ValidationSchema): string[] {
     const errors: string[] = [];
 
     if (schema) {
@@ -96,7 +96,7 @@ function validateFormData(data: Record<string, any>, schema?: ValidationSchema):
             if (stringValue.length > maxLength) {
                 errors.push(`${key} не должен превышать ${maxLength} символов`);
             }
-            if (/<|>|script|javascript/i.test(stringValue)) {
+            if (/<|>|script|javascript:|on\w+=/i.test(stringValue)) {
                 errors.push(`${key} содержит недопустимые символы`);
             }
         }
@@ -105,7 +105,7 @@ function validateFormData(data: Record<string, any>, schema?: ValidationSchema):
             if (stringValue.length > DESCRIPTION_MAX_LENGTH) {
                 errors.push(`Описание не должно превышать ${DESCRIPTION_MAX_LENGTH} символов`);
             }
-            if (/<script|javascript/i.test(stringValue)) {
+            if (/<script|javascript:|on\w+=/i.test(stringValue)) {
                 errors.push(`Описание содержит недопустимый код`);
             }
         }
@@ -138,7 +138,7 @@ function validateFormData(data: Record<string, any>, schema?: ValidationSchema):
  * @param {Object} config - Конфигурация хука
  * @returns {Object} Объект с состояниями и методами управления
  */
-export function useManager<T extends { id: number }, F extends Record<string, any>>({
+export function useManager<T extends { id: number }, F extends Record<string, unknown>, D = F>({
     initialFormData,
     loadFn,
     createFn,
@@ -148,9 +148,9 @@ export function useManager<T extends { id: number }, F extends Record<string, an
     successMessages,
 }: {
     initialFormData: F;
-    loadFn: () => Promise<T[]>;
-    createFn: (data: any) => Promise<T>;
-    updateFn: (id: number, data: any) => Promise<T>;
+    loadFn: (signal?: AbortSignal) => Promise<T[]>;
+    createFn: (data: D) => Promise<T>;
+    updateFn: (id: number, data: D) => Promise<T>;
     deleteFn: (id: number) => Promise<DeleteResponse>;
     validationSchema?: ValidationSchema;
     successMessages: {
@@ -169,23 +169,27 @@ export function useManager<T extends { id: number }, F extends Record<string, an
     const { showSuccess, showError } = useNotification();
     const { confirm } = useConfirmDialog();
 
-    const loadItems = useCallback(async () => {
+    const loadItems = useCallback(async (signal?: AbortSignal) => {
         try {
-            const data = await loadFn();
+            const data = await loadFn(signal);
             setItems(data);
         } catch (err) {
-            showError(getErrorMessage(err));
+            if (!(err instanceof DOMException && err.name === 'AbortError')) {
+                showError(getErrorMessage(err));
+            }
         } finally {
             setLoading(false);
         }
     }, [loadFn, showError]);
 
     useEffect(() => {
-        loadItems();
+        const controller = new AbortController();
+        loadItems(controller.signal);
+        return () => controller.abort();
     }, [loadItems]);
 
-    const handleSubmit = useCallback(async (data: any) => {
-        const validationTarget = data instanceof FormData ? formData : data;
+    const handleSubmit = useCallback(async (data: D) => {
+        const validationTarget = data instanceof FormData ? formData : (data as F);
         const validationErrors = validateFormData(validationTarget, validationSchema);
         if (validationErrors.length > 0) {
             validationErrors.forEach(err => showError(err));
@@ -243,6 +247,10 @@ export function useManager<T extends { id: number }, F extends Record<string, an
         setShowForm(false);
     }, [initialFormData]);
 
+    const setField = useCallback(<K extends keyof F>(key: K, value: F[K]) => {
+        setFormData((prev) => ({ ...prev, [key]: value }));
+    }, []);
+
     return {
         items,
         loading,
@@ -251,6 +259,7 @@ export function useManager<T extends { id: number }, F extends Record<string, an
         formData,
         
         setFormData,
+        setField,
         setShowForm,
         setEditingItem,
         

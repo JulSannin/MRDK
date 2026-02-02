@@ -8,7 +8,7 @@ import Button from '../../shared/ui/Button';
 /** Компонент управления планом работы */
 export default function WorkplanManager() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const manager = useManager<WorkplanItem, typeof initialFormData>({
+    const manager = useManager<WorkplanItem, typeof initialFormData, FormData>({
         initialFormData: {
             month: '',
             year: new Date().getFullYear(),
@@ -77,7 +77,7 @@ export default function WorkplanManager() {
                                 <label className="block text-sm font-medium mb-1">Месяц</label>
                                 <select
                                     value={manager.formData.month}
-                                    onChange={(e) => manager.setFormData({ ...manager.formData, month: e.target.value })}
+                                    onChange={(e) => manager.setField('month', e.target.value)}
                                     required
                                     className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                                 >
@@ -101,7 +101,7 @@ export default function WorkplanManager() {
                                 <input
                                     type="number"
                                     value={manager.formData.year}
-                                    onChange={(e) => manager.setFormData({ ...manager.formData, year: Number(e.target.value) })}
+                                    onChange={(e) => manager.setField('year', Number(e.target.value))}
                                     required
                                     min="2020"
                                     max="2100"
@@ -122,7 +122,7 @@ export default function WorkplanManager() {
                             <label className="block text-sm font-medium mb-1">Описание мероприятий</label>
                             <textarea
                                 value={manager.formData.description}
-                                onChange={(e) => manager.setFormData({ ...manager.formData, description: e.target.value })}
+                                onChange={(e) => manager.setField('description', e.target.value)}
                                 required
                                 rows={4}
                                 placeholder="Перечислите основные мероприятия месяца..."

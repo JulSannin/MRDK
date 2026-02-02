@@ -26,7 +26,7 @@ export default function UsefulLinksCarousel() {
     return (
         <div className="p-[40px]">
             <div className="max-w-[1260px] mx-auto px-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-center mb-8" style={{ color: 'var(--color-dark)' }}>
+                <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 app-text-dark">
                     Полезные ссылки
                 </h2>
 
@@ -35,9 +35,7 @@ export default function UsefulLinksCarousel() {
                     <button
                         onClick={handlePrev}
                         aria-label="Предыдущий слайд"
-                        className="hidden lg:block absolute left-4 2xl:left-[-50px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all duration-300"
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; }}
+                        className="hidden lg:block absolute left-4 2xl:left-[-50px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all duration-300 app-hover-primary"
                     >
                         <span className="text-2xl leading-none">‹</span>
                     </button>
@@ -79,9 +77,7 @@ export default function UsefulLinksCarousel() {
                     <button
                         onClick={handleNext}
                         aria-label="Следующий слайд"
-                        className="hidden lg:block absolute right-4 2xl:right-[-50px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all duration-300"
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; }}
+                        className="hidden lg:block absolute right-4 2xl:right-[-50px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all duration-300 app-hover-primary"
                     >
                         <span className="text-2xl leading-none">›</span>
                     </button>
@@ -92,18 +88,14 @@ export default function UsefulLinksCarousel() {
                     <button
                         onClick={handlePrev}
                         aria-label="Предыдущий слайд"
-                        className="w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all"
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; }}
+                        className="w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all app-hover-primary"
                     >
                         <span className="text-2xl leading-none">‹</span>
                     </button>
                     <button
                         onClick={handleNext}
                         aria-label="Следующий слайд"
-                        className="w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all"
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; }}
+                        className="w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg hover:text-white transition-all app-hover-primary"
                     >
                         <span className="text-2xl leading-none">›</span>
                     </button>
@@ -118,10 +110,9 @@ export default function UsefulLinksCarousel() {
                             aria-label={`Перейти к слайду ${index + 1}`}
                             className={`w-3 h-3 rounded-full transition-all duration-300 ${
                                 index === currentIndex
-                                    ? 'w-8'
+                                    ? 'w-8 app-bg-primary'
                                     : 'bg-gray-300 hover:bg-gray-400'
                             }`}
-                            style={index === currentIndex ? { backgroundColor: 'var(--color-primary)' } : undefined}
                         />
                     ))}
                 </div>

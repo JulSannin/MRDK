@@ -22,12 +22,7 @@ export default function FooterContacts() {
                 <span className="text-[#D9D9D9]">E-mail: </span>
                 <a 
                     href="mailto:rdk-pristan@mail.ru" 
-                    className="focus:underline hover:underline"
-                    style={{ color: 'inherit' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}
-                    onFocus={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
-                    onBlur={(e) => e.currentTarget.style.color = 'inherit'}
+                    className="focus:underline hover:underline footer-contact-link"
                 >
                     rdk-pristan@mail.ru
                 </a> <br />
@@ -36,12 +31,7 @@ export default function FooterContacts() {
                 <span className="text-[#D9D9D9]">Телефон</span>:
                 <a 
                     href="tel:+89230318935" 
-                    className="focus:underline hover:underline"
-                    style={{ color: 'inherit' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}
-                    onFocus={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
-                    onBlur={(e) => e.currentTarget.style.color = 'inherit'}
+                    className="focus:underline hover:underline footer-contact-link"
                 >
                     +8-923-031-89-35
                 </a> , 37-1-36

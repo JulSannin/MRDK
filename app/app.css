@@ -71,3 +71,57 @@ body {
 .animate-scale-in {
     animation: scale-in 0.2s ease-out;
 }
+
+/* Общие utility-классы с цветовой палитрой */
+.app-bg-light {
+    background-color: var(--color-light-bg);
+}
+
+.app-bg-yellow {
+    background-color: var(--color-yellow);
+}
+
+.app-bg-primary {
+    background-color: var(--color-primary);
+}
+
+.app-hover-primary:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.app-bg-dark {
+    background-color: var(--color-dark);
+}
+
+.app-text-dark {
+    color: var(--color-dark);
+}
+
+.app-bg-dark-transparent {
+    background-color: var(--color-dark-transparent);
+}
+
+.app-text-yellow {
+    color: var(--color-yellow);
+}
+
+.app-bg-primary-80 {
+    background-color: rgba(33, 118, 255, 0.8);
+}
+
+.app-bg-yellow-soft {
+    background-color: rgba(253, 202, 64, 0.1);
+}
+
+.app-hover-yellow:hover {
+    background-color: rgba(253, 202, 64, 0.2);
+}
+
+.footer-contact-link {
+    color: inherit;
+}
+
+.footer-contact-link:hover,
+.footer-contact-link:focus {
+    color: var(--color-yellow);
+}

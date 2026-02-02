@@ -12,6 +12,13 @@ export class ApiError extends Error {
     }
 }
 
+export type ErrorDetails = {
+    message: string;
+    status?: number;
+    code?: string;
+    original?: unknown;
+};
+
 /**
  * Извлекает текстовое сообщение ошибки из любого типа ошибки
  * @param {unknown} error - Ошибка любого типа
@@ -34,19 +41,40 @@ export function getErrorMessage(error: unknown): string {
 }
 
 /**
+ * Возвращает расширенные детали ошибки
+ * @param {unknown} error - Ошибка любого типа
+ * @returns {ErrorDetails} Детали ошибки
+ */
+export function getErrorDetails(error: unknown): ErrorDetails {
+    if (error instanceof ApiError) {
+        return { message: error.message, status: error.status, code: error.code, original: error };
+    }
+
+    if (error instanceof Error) {
+        return { message: error.message, original: error };
+    }
+
+    if (typeof error === 'string') {
+        return { message: error, original: error };
+    }
+
+    return { message: 'Произошла неизвестная ошибка', original: error };
+}
+
+/**
  * Обрабатывает ошибку API с логированием в dev режиме
  * @param {unknown} error - Ошибка для обработки
  * @returns {never} Выбрасывает ApiError
  */
 export function handleApiError(error: unknown): never {
-    const message = getErrorMessage(error);
+    const details = getErrorDetails(error);
     
     // В продакшене здесь можно добавить логирование в Sentry
     if (import.meta.env.DEV) {
-        console.error('API Error:', error);
+        console.error('API Error:', details);
     }
     
-    throw new ApiError(message);
+    throw new ApiError(details.message, details.status, details.code);
 }
 
 /**

@@ -24,9 +24,11 @@ export default function Admin() {
     const { showError, showInfo } = useNotification();
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const checkAuth = async () => {
             try {
-                const result = await api.verifyToken();
+                const result = await api.verifyToken(controller.signal);
                 if (result.valid && result.user?.role === 'admin') {
                     setIsAuthenticated(true);
                 } else {
@@ -36,6 +38,9 @@ export default function Admin() {
                     navigate('/admin/login');
                 }
             } catch (err) {
+                if (err instanceof DOMException && err.name === 'AbortError') {
+                    return;
+                }
                 const errorMessage = getErrorMessage(err);
                 showError(errorMessage);
                 navigate('/admin/login');
@@ -45,6 +50,7 @@ export default function Admin() {
         };
 
         checkAuth();
+        return () => controller.abort();
     }, [navigate, showError]);
 
     const handleLogout = () => {

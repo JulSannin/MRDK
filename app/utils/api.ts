@@ -14,7 +14,7 @@ function clearCSRFTokenCache() {
 async function handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
         let errorMessage: string;
-        let errorData: any = null;
+        let errorData: unknown = null;
 
         try {
             errorData = await response.clone().json();
@@ -22,6 +22,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
             errorData = null;
         }
         
+        const normalizedError = typeof errorData === 'object' && errorData !== null
+            ? (errorData as { message?: string; error?: string; code?: string })
+            : null;
+
         switch (response.status) {
             case 401:
                 errorMessage = AUTH_ERRORS.UNAUTHORIZED;
@@ -39,17 +43,18 @@ async function handleResponse<T>(response: Response): Promise<T> {
                 break;
             default:
                 errorMessage =
-                    errorData?.message ||
-                    errorData?.error ||
+                    normalizedError?.message ||
+                    normalizedError?.error ||
                     `Ошибка: ${response.status}`;
         }
 
         if (response.status === 403) {
             if (
-                errorData?.code === 'EBADCSRFTOKEN' ||
-                (errorData?.error && String(errorData.error).toLowerCase().includes('csrf token'))
+                normalizedError?.code === 'EBADCSRFTOKEN' ||
+                (normalizedError?.error && String(normalizedError.error).toLowerCase().includes('csrf token'))
             ) {
                 clearCSRFTokenCache();
+                errorMessage = 'Сессия устарела. Обновите страницу и повторите действие';
             }
         }
         
@@ -81,6 +86,17 @@ async function apiFetch<T>(
 ): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const method = (options.method || 'GET').toUpperCase();
+    const canRetry = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
+    const externalSignal = options.signal;
+
+    if (externalSignal) {
+        if (externalSignal.aborted) {
+            controller.abort();
+        } else {
+            externalSignal.addEventListener('abort', () => controller.abort(), { once: true });
+        }
+    }
 
     try {
         const response = await fetch(url, {
@@ -98,8 +114,10 @@ async function apiFetch<T>(
             throw new ApiError(`Запрос истёк. Пожалуйста, проверьте соединение и попробуйте снова`);
         }
 
-        // Retry только для GET запросов и network ошибок
-        if (retries > 0 && (!options.method || options.method === 'GET')) {
+        const isNetworkError = error instanceof TypeError;
+
+        // Retry только для идемпотентных запросов и сетевых ошибок
+        if (retries > 0 && canRetry && isNetworkError) {
             // Exponential backoff: 1s, 2s, 4s
             const delay = Math.pow(2, 3 - retries) * 1000;
             await new Promise(resolve => setTimeout(resolve, delay));
@@ -147,8 +165,8 @@ export const api = {
      * Получает список всех событий
      * @returns {Promise<Event[]>} Массив событий
      */
-    getEvents: async (): Promise<Event[]> => {
-        return apiFetch<Event[]>(`${API_URL}/events`);
+    getEvents: async (signal?: AbortSignal): Promise<Event[]> => {
+        return apiFetch<Event[]>(`${API_URL}/events`, { signal });
     },
 
     /**
@@ -156,8 +174,8 @@ export const api = {
      * @param {number} id - ID события
      * @returns {Promise<Event>} Объект события
      */
-    getEvent: async (id: number): Promise<Event> => {
-        return apiFetch<Event>(`${API_URL}/events/${id}`);
+    getEvent: async (id: number, signal?: AbortSignal): Promise<Event> => {
+        return apiFetch<Event>(`${API_URL}/events/${id}`, { signal });
     },
 
     /**
@@ -201,8 +219,8 @@ export const api = {
      * Получает список всех документов
      * @returns {Promise<Document[]>} Массив документов
      */
-    getDocuments: async (): Promise<Document[]> => {
-        return apiFetch<Document[]>(`${API_URL}/documents`);
+    getDocuments: async (signal?: AbortSignal): Promise<Document[]> => {
+        return apiFetch<Document[]>(`${API_URL}/documents`, { signal });
     },
 
     /**
@@ -246,8 +264,8 @@ export const api = {
      * Получает список всех памяток
      * @returns {Promise<Reminder[]>} Массив памяток
      */
-    getReminders: async (): Promise<Reminder[]> => {
-        return apiFetch<Reminder[]>(`${API_URL}/reminders`);
+    getReminders: async (signal?: AbortSignal): Promise<Reminder[]> => {
+        return apiFetch<Reminder[]>(`${API_URL}/reminders`, { signal });
     },
 
     /**
@@ -291,8 +309,8 @@ export const api = {
      * Получает план работы
      * @returns {Promise<WorkplanItem[]>} Массив элементов плана работы
      */
-    getWorkplan: async (): Promise<WorkplanItem[]> => {
-        return apiFetch<WorkplanItem[]>(`${API_URL}/workplan`);
+    getWorkplan: async (signal?: AbortSignal): Promise<WorkplanItem[]> => {
+        return apiFetch<WorkplanItem[]>(`${API_URL}/workplan`, { signal });
     },
 
     /**
@@ -354,9 +372,9 @@ export const api = {
      * Проверяет валидность токена авторизации
      * @returns {Promise<VerifyTokenResponse>} Результат проверки токена
      */
-    verifyToken: async (): Promise<VerifyTokenResponse> => {
+    verifyToken: async (signal?: AbortSignal): Promise<VerifyTokenResponse> => {
         try {
-            return await apiFetch<VerifyTokenResponse>(`${API_URL}/auth/verify`);
+            return await apiFetch<VerifyTokenResponse>(`${API_URL}/auth/verify`, { signal });
         } catch (error) {
             if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
                 return { valid: false };
@@ -371,8 +389,12 @@ export const api = {
      */
     logout: async (): Promise<{ success: boolean }> => {
         const csrfToken = await getCSRFToken();
-        return apiFetch<{ success: boolean }>(`${API_URL}/auth/logout`, 
-            addCSRFHeaders({ method: 'POST' }, csrfToken)
-        );
+        try {
+            return apiFetch<{ success: boolean }>(`${API_URL}/auth/logout`, 
+                addCSRFHeaders({ method: 'POST' }, csrfToken)
+            );
+        } finally {
+            clearCSRFTokenCache();
+        }
     },
 };

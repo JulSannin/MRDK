@@ -1,7 +1,7 @@
 import Logo from './Logo';
 import NavLinks from './NavLinks';
 import NavActions from './NavActions';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import { getNavLinkClassName } from './navLinkStyles';
 import BurgerMenuButton from './BurgerMenuButton';
@@ -15,30 +15,36 @@ export default function NavBar() {
     const location = useLocation();
     const hasCheckedTokenRef = useRef(false);
     const isCheckingRef = useRef(false);
+    const requestIdRef = useRef(0);
 
     useEffect(() => {
         let isMounted = true;
+        const controller = new AbortController();
 
         const shouldCheck = !hasCheckedTokenRef.current || location.pathname.startsWith('/admin');
         
         if (shouldCheck && !isCheckingRef.current) {
             isCheckingRef.current = true;
+            const requestId = ++requestIdRef.current;
             
-            api.verifyToken()
+            api.verifyToken(controller.signal)
                 .then((result) => {
-                    if (isMounted) {
+                    if (isMounted && requestIdRef.current === requestId) {
                         setHasAdminToken(result.valid);
                         hasCheckedTokenRef.current = true;
                     }
                 })
-                .catch(() => {
-                    if (isMounted) {
+                .catch((err) => {
+                    if (err instanceof DOMException && err.name === 'AbortError') {
+                        return;
+                    }
+                    if (isMounted && requestIdRef.current === requestId) {
                         setHasAdminToken(false);
                         hasCheckedTokenRef.current = true;
                     }
                 })
                 .finally(() => {
-                    if (isMounted) {
+                    if (isMounted && requestIdRef.current === requestId) {
                         isCheckingRef.current = false;
                     }
                 });
@@ -46,15 +52,16 @@ export default function NavBar() {
         
         return () => {
             isMounted = false;
+            controller.abort();
         };
     }, [location.pathname]);
 
-    const toggleMenu = () => setIsOpen(!isOpen);
-    const closeMenu = () => setIsOpen(false);
+    const toggleMenu = useCallback(() => setIsOpen((prev) => !prev), []);
+    const closeMenu = useCallback(() => setIsOpen(false), []);
 
     return (
         <>
-            <div className="flex justify-between w-full h-[56px] relative z-50" style={{ backgroundColor: 'var(--color-yellow)' }}>
+            <div className="flex justify-between w-full h-[56px] relative z-50 app-bg-yellow">
                 <BurgerMenuButton isOpen={isOpen} onToggle={toggleMenu} />
                 <div className="flex items-center gap-[10px]">
                     <Logo />

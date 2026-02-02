@@ -117,7 +117,7 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
                     {/* Dialog */}
                     <div className="fixed inset-0 z-[201] flex items-center justify-center p-4">
                         <div
-                            role="dialog"
+                            role={options.variant === 'danger' ? 'alertdialog' : 'dialog'}
                             aria-modal="true"
                             aria-labelledby="dialog-title"
                             aria-describedby="dialog-description"
@@ -138,12 +138,14 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
                             <div className="flex gap-3 justify-end mt-6">
                                 <button
                                     onClick={handleCancel}
+                                    type="button"
                                     className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
                                 >
                                     {options.cancelText || 'Отмена'}
                                 </button>
                                 <button
                                     onClick={handleConfirm}
+                                    type="button"
                                     className={`px-4 py-2 rounded-lg transition-colors font-medium ${styles.button}`}
                                 >
                                     {options.confirmText || 'Подтвердить'}
