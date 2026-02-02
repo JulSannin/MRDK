@@ -32,13 +32,11 @@ function FooterLinks() {
                 })}
             </div>
             <hr className="bg-[#D9D9D9] h-[2px] mt-[10px] hidden xl:block" />
-            <div className="inline-flex overflow-hidden bg-[#31393C] mt-[10px] mb-[10px] w-[68px] xl:w-[82px] xl:mt-[20px] xl:mb-[20px]">
-                <img
-                    src={logoSvg}
-                    alt="Логотип Мариинский районный дом культуры"
-                    className="block w-full h-auto"
-                />
-            </div>
+            <img
+                src={logoSvg}
+                alt="Логотип Мариинский районный дом культуры"
+                className="block mt-[10px] mb-[10px] w-[68px] xl:w-[82px] xl:mt-[20px] xl:mb-[20px]"
+            />
         </div>
     );
 }
