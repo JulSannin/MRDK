@@ -1,9 +1,11 @@
 import type { Route } from './+types/home';
 import { useLoaderData } from 'react-router';
+import { Suspense } from 'react';
 import EventGrid from '../components/main/events/EventGrid';
 import { api } from '../utils/api';
 import { sortEventsByDate } from '../utils/eventHelpers';
 import { LATEST_EVENTS_COUNT } from '../config/constants';
+import LoadingFallback from '../components/shared/ui/LoadingFallback';
 
 // Home page metadata
 export function meta({}: Route.MetaArgs) {
@@ -34,7 +36,9 @@ export default function Home() {
                 <p className="text-white text-center p-[20px] text-[20px]">
                     Последние события
                 </p>
-                <EventGrid events={events} />
+                <Suspense fallback={<LoadingFallback />}>
+                    <EventGrid events={events} />
+                </Suspense>
             </div>
         </div>
     );
