@@ -17,7 +17,7 @@ export default function FooterContacts() {
             >
                 {contactsLink?.label}
             </NavLink>
-            <hr className="bg-[#D9D9D9] border-0 h-[2px] mt-[10px] max-w-[78px]" />
+            <hr className="bg-[#D9D9D9] h-[2px] mt-[10px] max-w-[78px]" />
             <p className="text-white text-[14px] font-medium mt-[10px] xl:text-[12px]">
                 <span className="text-[#D9D9D9]">E-mail: </span>
                 <a href="mailto:rdk-pristan@mail.ru" className="focus:underline focus:text-[#fdca40] hover:underline hover:text-[#fdca40]">rdk-pristan@mail.ru</a> <br />
