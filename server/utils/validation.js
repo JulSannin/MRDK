@@ -11,12 +11,3 @@ export const isValidDate = (value) => {
 
 /** Допустимые значения приоритета для памяток */
 export const ALLOWED_PRIORITIES = new Set(['high', 'medium', 'low']);
-
-/**
- * Проверяет корректность приоритета
- * @param {string} priority - Значение приоритета
- * @returns {boolean} true если приоритет валиден
- */
-export const isValidPriority = (priority) => {
-    return !priority || ALLOWED_PRIORITIES.has(priority);
-};

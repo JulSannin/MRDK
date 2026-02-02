@@ -7,10 +7,10 @@ import fs from 'fs/promises';
 import rateLimit from 'express-rate-limit';
 import { db } from '../database/db.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-import { validateAndSanitize } from '../middleware/validation.js';
 import { getLogger } from '../lib/logger.js';
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MUTATION_MAX } from '../config.js';
 import { getErrorMessage, validateId } from '../utils/errorHandler.js';
+import { createValidationWithCleanup, getUploadPath } from '../utils/uploadHelpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,32 +52,16 @@ const upload = multer({
     },
 });
 
-const getUploadPath = (fileUrl) => {
-    if (!fileUrl) return null;
-    const relative = fileUrl.startsWith('/uploads/') ? fileUrl.replace('/uploads/', '') : fileUrl;
-    return path.join(__dirname, '..', 'uploads', relative);
-};
+const uploadsRoot = path.join(__dirname, '..', 'uploads');
+const getEventUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
 const MAX_EVENTS_LIMIT = 50;
 
-const createValidationWithCleanup = (schema) => (req, res, next) => {
-    const { sanitized, errors } = validateAndSanitize(req.body, schema);
-
-    if (errors.length > 0) {
-        if (req.file?.path) {
-            fs.unlink(req.file.path).catch((err) => {
-                logger.error(`Failed to delete orphaned event image: ${req.file.path}`, err);
-            });
-        }
-        return res.status(400).json({
-            error: 'Validation failed',
-            details: errors,
-        });
-    }
-
-    req.body = sanitized;
-    next();
-};
+const validateEvent = createValidationWithCleanup({
+    schema: eventValidationSchema,
+    logger,
+    orphanLabel: 'event image',
+});
 
 // Схема валидации для событий
 const eventValidationSchema = {
@@ -145,7 +129,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST - создать событие (требует авторизации)
-router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single('image'), createValidationWithCleanup(eventValidationSchema), async (req, res) => {
+router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single('image'), validateEvent, async (req, res) => {
     try {
         const { title, shortDescription, fullDescription, date } = req.body;
         const image = req.file ? `/uploads/events/${req.file.filename}` : null;
@@ -171,7 +155,7 @@ router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single
 });
 
 // PUT - обновить событие (требует авторизации)
-router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.single('image'), createValidationWithCleanup(eventValidationSchema), async (req, res) => {
+router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.single('image'), validateEvent, async (req, res) => {
     try {
         const validation = validateId(req.params.id);
         if (!validation.valid) {
@@ -200,7 +184,7 @@ router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.sing
         const updatedEvent = await db.updateEvent(validation.id, updates);
 
         if (image && existingEvent.image) {
-            const oldPath = getUploadPath(existingEvent.image);
+            const oldPath = getEventUploadPath(existingEvent.image);
             if (oldPath) {
                 fs.unlink(oldPath).catch((err) => {
                     logger.error(`Failed to delete old event image: ${oldPath}`, err);
@@ -232,7 +216,7 @@ router.delete('/:id', mutationLimiter, authenticateToken, requireAdmin, async (r
         await db.deleteEvent(validation.id);
 
         if (event.image) {
-            const filePath = getUploadPath(event.image);
+            const filePath = getEventUploadPath(event.image);
             if (filePath) {
                 fs.unlink(filePath).catch((err) => {
                     logger.error(`Failed to delete event image: ${filePath}`, err);

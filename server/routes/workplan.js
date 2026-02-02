@@ -7,10 +7,10 @@ import fs from 'fs/promises';
 import rateLimit from 'express-rate-limit';
 import { db } from '../database/db.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-import { validateAndSanitize } from '../middleware/validation.js';
 import { getLogger } from '../lib/logger.js';
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MUTATION_MAX } from '../config.js';
 import { getErrorMessage, validateId } from '../utils/errorHandler.js';
+import { createValidationWithCleanup, getUploadPath } from '../utils/uploadHelpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -59,30 +59,14 @@ const upload = multer({
     },
 });
 
-const getUploadPath = (fileUrl) => {
-    if (!fileUrl) return null;
-    const relative = fileUrl.startsWith('/uploads/') ? fileUrl.replace('/uploads/', '') : fileUrl;
-    return path.join(__dirname, '..', 'uploads', relative);
-};
+const uploadsRoot = path.join(__dirname, '..', 'uploads');
+const getWorkplanUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
-const createValidationWithCleanup = (schema) => (req, res, next) => {
-    const { sanitized, errors } = validateAndSanitize(req.body, schema);
-
-    if (errors.length > 0) {
-        if (req.file?.path) {
-            fs.unlink(req.file.path).catch((err) => {
-                logger.error(`Failed to delete orphaned workplan file: ${req.file.path}`, err);
-            });
-        }
-        return res.status(400).json({
-            error: 'Validation failed',
-            details: errors,
-        });
-    }
-
-    req.body = sanitized;
-    next();
-};
+const validateWorkplan = createValidationWithCleanup({
+    schema: workplanValidationSchema,
+    logger,
+    orphanLabel: 'workplan file',
+});
 
 const workplanValidationSchema = {
     month: { required: true, minLength: 1, maxLength: 30 },
@@ -126,7 +110,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST - создать элемент плана (требует авторизации)
-router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), createValidationWithCleanup(workplanValidationSchema), async (req, res) => {
+router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), validateWorkplan, async (req, res) => {
     try {
         const { month, year, description } = req.body;
         const fileUrl = req.file ? `/uploads/workplan/${req.file.filename}` : null;
@@ -153,7 +137,7 @@ router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single
 });
 
 // PUT - обновить элемент плана (требует авторизации)
-router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), createValidationWithCleanup(workplanValidationSchema), async (req, res) => {
+router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), validateWorkplan, async (req, res) => {
     try {
         const validation = validateId(req.params.id);
         if (!validation.valid) {
@@ -189,7 +173,7 @@ router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.sing
 
         // Удаляем старый файл если был загружен новый
         if (fileUrl && existingItem.fileUrl) {
-            const oldPath = getUploadPath(existingItem.fileUrl);
+            const oldPath = getWorkplanUploadPath(existingItem.fileUrl);
             if (oldPath) {
                 fs.unlink(oldPath).catch((err) => {
                     logger.error(`Failed to delete old workplan file: ${oldPath}`, err);
@@ -223,7 +207,7 @@ router.delete('/:id', mutationLimiter, authenticateToken, requireAdmin, async (r
 
         // Удаляем файл если есть
         if (workplanItem.fileUrl) {
-            const filePath = getUploadPath(workplanItem.fileUrl);
+            const filePath = getWorkplanUploadPath(workplanItem.fileUrl);
             if (filePath) {
                 fs.unlink(filePath).catch((err) => {
                     logger.error(`Failed to delete workplan file: ${filePath}`, err);

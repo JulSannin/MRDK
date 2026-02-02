@@ -26,9 +26,9 @@ export function handleDownload(fileUrl: string, fileName: string): void {
  */
 export function normalizeImageUrl(
     url: string | null | undefined,
-    baseUrl = 'https://backend-production-190b.up.railway.app'
+    baseUrl = import.meta.env.VITE_BACKEND_URL || ''
 ): string {
     if (!url) return '';
     if (url.startsWith('http')) return url;
-    return `${baseUrl}${url}`;
+    return baseUrl ? `${baseUrl}${url}` : url;
 }

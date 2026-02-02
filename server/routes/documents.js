@@ -7,10 +7,10 @@ import fs from 'fs/promises';
 import rateLimit from 'express-rate-limit';
 import { db } from '../database/db.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-import { validateAndSanitize } from '../middleware/validation.js';
 import { getLogger } from '../lib/logger.js';
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_DOCUMENT_MAX } from '../config.js';
 import { getErrorMessage, validateId } from '../utils/errorHandler.js';
+import { createValidationWithCleanup, getUploadPath } from '../utils/uploadHelpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -59,11 +59,8 @@ const upload = multer({
     },
 });
 
-const getUploadPath = (fileUrl) => {
-    if (!fileUrl) return null;
-    const relative = fileUrl.startsWith('/uploads/') ? fileUrl.replace('/uploads/', '') : fileUrl;
-    return path.join(__dirname, '..', 'uploads', relative);
-};
+const uploadsRoot = path.join(__dirname, '..', 'uploads');
+const getDocumentUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
 
 const documentValidationSchema = {
     title: { required: true, minLength: 1, maxLength: 200 },
@@ -71,24 +68,11 @@ const documentValidationSchema = {
     category: { required: false, maxLength: 50 },
 };
 
-const createValidationWithCleanup = (schema) => (req, res, next) => {
-    const { sanitized, errors } = validateAndSanitize(req.body, schema);
-
-    if (errors.length > 0) {
-        if (req.file?.path) {
-            fs.unlink(req.file.path).catch((err) => {
-                logger.error(`Failed to delete orphaned document file: ${req.file.path}`, err);
-            });
-        }
-        return res.status(400).json({
-            error: 'Validation failed',
-            details: errors,
-        });
-    }
-
-    req.body = sanitized;
-    next();
-};
+const validateDocument = createValidationWithCleanup({
+    schema: documentValidationSchema,
+    logger,
+    orphanLabel: 'document file',
+});
 
 // GET - получить все документы
 router.get('/', async (req, res) => {
@@ -119,7 +103,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST - создать документ (требует авторизации)
-router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), createValidationWithCleanup(documentValidationSchema), async (req, res) => {
+router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), validateDocument, async (req, res) => {
     try {
         const { title, description, category } = req.body;
         const fileUrl = req.file ? `/uploads/documents/${req.file.filename}` : null;
@@ -148,7 +132,7 @@ router.post('/', mutationLimiter, authenticateToken, requireAdmin, upload.single
 });
 
 // PUT - обновить документ (требует авторизации)
-router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), createValidationWithCleanup(documentValidationSchema), async (req, res) => {
+router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.single('file'), validateDocument, async (req, res) => {
     try {
         const validation = validateId(req.params.id);
         if (!validation.valid) {
@@ -171,7 +155,7 @@ router.put('/:id', mutationLimiter, authenticateToken, requireAdmin, upload.sing
         const updatedDocument = await db.updateDocument(validation.id, updates);
 
         if (fileUrl && existingDocument.fileUrl) {
-            const oldPath = getUploadPath(existingDocument.fileUrl);
+            const oldPath = getDocumentUploadPath(existingDocument.fileUrl);
             if (oldPath) {
                 fs.unlink(oldPath).catch((err) => {
                     logger.error(`Failed to delete old document file: ${oldPath}`, err);
@@ -201,7 +185,7 @@ router.delete('/:id', mutationLimiter, authenticateToken, requireAdmin, async (r
         await db.deleteDocument(validation.id);
 
         if (document.fileUrl) {
-            const filePath = getUploadPath(document.fileUrl);
+            const filePath = getDocumentUploadPath(document.fileUrl);
             if (filePath) {
                 fs.unlink(filePath).catch((err) => {
                     logger.error(`Failed to delete document file: ${filePath}`, err);
