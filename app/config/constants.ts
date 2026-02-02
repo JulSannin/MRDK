@@ -1,6 +1,13 @@
 // API base URL
 export const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+// Backend base URL for images and files
+// In production on Railway, set VITE_BACKEND_URL to your backend domain (e.g., https://server.up.railway.app)
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL 
+    || (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '/api' 
+        ? import.meta.env.VITE_API_URL.replace('/api', '') 
+        : '');
+
 // Latest events count on home page
 export const LATEST_EVENTS_COUNT = 6;
 

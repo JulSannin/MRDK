@@ -1,3 +1,5 @@
+import { BACKEND_URL } from '../config/constants';
+
 // Download file from URL
 export function handleDownload(fileUrl: string, fileName: string): void {
     try {
@@ -16,7 +18,7 @@ export function handleDownload(fileUrl: string, fileName: string): void {
 // Normalize image URLs with backend base URL
 export function normalizeImageUrl(
     url: string | null | undefined,
-    baseUrl = import.meta.env.VITE_BACKEND_URL || ''
+    baseUrl = BACKEND_URL
 ): string {
     if (!url) return '';
     if (url.startsWith('http')) return url;
