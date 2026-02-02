@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -10,7 +9,9 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { getLogger } from '../lib/logger.js';
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MUTATION_MAX } from '../config.js';
 import { getErrorMessage, validateId } from '../utils/errorHandler.js';
-import { createValidationWithCleanup, getUploadPath } from '../utils/uploadHelpers.js';
+import { createUploadMiddleware, getUploadPath } from '../utils/multerHelpers.js';
+import { createValidationWithCleanup } from '../utils/uploadHelpers.js';
+import { validateAndSanitize } from '../middleware/validation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,37 +28,8 @@ const mutationLimiter = rateLimit({
     message: 'Слишком много запросов, попробуйте позже',
 });
 
-// Настройка multer для загрузки файлов
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../uploads/workplan'));
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, 'workplan-' + uniqueSuffix + path.extname(file.originalname));
-    },
-});
-
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ];
-        const allowedExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
-        const extname = path.extname(file.originalname).toLowerCase();
-
-        if (allowedTypes.includes(file.mimetype) && allowedExtensions.includes(extname)) {
-            return cb(null, true);
-        }
-        cb(new Error('Недопустимый тип файла'));
-    },
-});
+// Настройка multer для загрузки файлов (используем фабрику из multerHelpers)
+const upload = createUploadMiddleware('workplanFile', __dirname);
 
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const getWorkplanUploadPath = (fileUrl) => getUploadPath(fileUrl, uploadsRoot);
@@ -79,6 +51,7 @@ const validateWorkplan = createValidationWithCleanup({
     schema: workplanValidationSchema,
     logger,
     orphanLabel: 'workplan file',
+    validateAndSanitize,
 });
 
 // GET - получить весь план работы
