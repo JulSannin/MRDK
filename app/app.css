@@ -4,6 +4,15 @@
     --font-sans:
         'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    
+    /* Цветовая палитра проекта */
+    --color-primary: #2176FF;
+    --color-primary-hover: #1a5acc;
+    --color-primary-dark: #0e4099;
+    --color-dark: #31393C;
+    --color-dark-transparent: rgba(49, 57, 60, 0.6);
+    --color-yellow: #fdca40;
+    --color-light-bg: #F5F5F5;
 }
 
 html {

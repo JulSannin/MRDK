@@ -63,7 +63,7 @@ export default function App() {
     return (
         <NotificationProvider>
             <ConfirmDialogProvider>
-                <div className="min-h-screen flex flex-col bg-[#F5F5F5]">
+                <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-light-bg)' }}>
                     <Header />
                     <main className="flex-1">
                         <Outlet />

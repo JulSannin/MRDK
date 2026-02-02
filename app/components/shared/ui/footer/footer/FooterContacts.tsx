@@ -20,11 +20,31 @@ export default function FooterContacts() {
             <hr className="bg-[#D9D9D9] h-[2px] mt-[10px] max-w-[78px]" />
             <p className="text-white text-[14px] font-medium mt-[10px] xl:text-[12px]">
                 <span className="text-[#D9D9D9]">E-mail: </span>
-                <a href="mailto:rdk-pristan@mail.ru" className="focus:underline focus:text-[#fdca40] hover:underline hover:text-[#fdca40]">rdk-pristan@mail.ru</a> <br />
+                <a 
+                    href="mailto:rdk-pristan@mail.ru" 
+                    className="focus:underline hover:underline"
+                    style={{ color: 'inherit' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}
+                    onFocus={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
+                    onBlur={(e) => e.currentTarget.style.color = 'inherit'}
+                >
+                    rdk-pristan@mail.ru
+                </a> <br />
                 <span className="text-[#D9D9D9]">Адрес</span>: Кемеровская
                 область, Мариинский район, д.2-Пристань, ул.Весенняя, 13 <br />
                 <span className="text-[#D9D9D9]">Телефон</span>:
-                <a href="tel:+89230318935" className="focus:underline focus:text-[#fdca40] hover:underline hover:text-[#fdca40]">+8-923-031-89-35</a> , 37-1-36
+                <a 
+                    href="tel:+89230318935" 
+                    className="focus:underline hover:underline"
+                    style={{ color: 'inherit' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}
+                    onFocus={(e) => e.currentTarget.style.color = 'var(--color-yellow)'}
+                    onBlur={(e) => e.currentTarget.style.color = 'inherit'}
+                >
+                    +8-923-031-89-35
+                </a> , 37-1-36
             </p>
         </div>
     );

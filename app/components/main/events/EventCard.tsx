@@ -27,14 +27,14 @@ function EventCard({ id, title, shortDescription, date, image }: EventCardProps)
                     className="absolute inset-0 bg-center bg-cover transition-transform duration-300 ease-in-out hover:scale-110"
                     style={{ 
                         backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
-                        backgroundColor: !imageUrl ? '#31393C' : 'transparent'
+                        backgroundColor: !imageUrl ? 'var(--color-dark)' : 'transparent'
                     }}
                 />
-                <time className="relative z-10 text-center w-[144px] ml-[10px] mt-[10px] text-white bg-[#31393C]/60 rounded-[5px]">
+                <time className="relative z-10 text-center w-[144px] ml-[10px] mt-[10px] text-white" style={{ backgroundColor: 'var(--color-dark-transparent)' }}>
                     {formatEventDate(date)}
                 </time>
-                <div className="relative z-10 h-[100px] bg-[#2176FF]/80 rounded-b-[5px]">
-                    <p className="m-[4px] text-[#fdca40] font-semibold">{title}</p>
+                <div className="relative z-10 h-[100px] rounded-b-[5px]" style={{ backgroundColor: 'rgba(33, 118, 255, 0.8)' }}>
+                    <p className="m-[4px] font-semibold" style={{ color: 'var(--color-yellow)' }}>{title}</p>
                     <p className="m-[4px] text-[14px] text-white">{shortDescription}</p>
                 </div>
             </article>

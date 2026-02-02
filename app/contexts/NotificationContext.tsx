@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 
 export type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
@@ -28,9 +28,24 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
  */
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
     const removeNotification = useCallback((id: string) => {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
+        // Очищаем таймаут при удалении
+        const timeout = timeoutsRef.current.get(id);
+        if (timeout) {
+            clearTimeout(timeout);
+            timeoutsRef.current.delete(id);
+        }
+    }, []);
+
+    // Очищаем все таймауты при демонтировании компонента
+    useEffect(() => {
+        return () => {
+            timeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
+            timeoutsRef.current.clear();
+        };
     }, []);
 
     const showNotification = useCallback((type: NotificationType, message: string) => {
@@ -42,9 +57,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             return updated.length > 2 ? updated.slice(-2) : updated;
         });
 
-        setTimeout(() => {
+        // Сохраняем таймаут в рефе для последующей очистки
+        const timeout = setTimeout(() => {
             removeNotification(id);
         }, 5000);
+        timeoutsRef.current.set(id, timeout);
     }, [removeNotification]);
 
     const showSuccess = useCallback((message: string) => {

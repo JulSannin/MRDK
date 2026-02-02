@@ -76,21 +76,34 @@ function handleNetworkError(error: unknown): never {
 async function apiFetch<T>(
     url: string,
     options: RequestInit = {},
-    retries = 3
+    retries = 3,
+    timeoutMs = 30000
 ): Promise<T> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     try {
         const response = await fetch(url, {
             credentials: 'include',
             ...options,
+            signal: controller.signal,
         });
+        clearTimeout(timeoutId);
         return handleResponse<T>(response);
     } catch (error) {
+        clearTimeout(timeoutId);
+        
+        // Timeout или abort error
+        if (error instanceof DOMException && error.name === 'AbortError') {
+            throw new ApiError(`Запрос истёк. Пожалуйста, проверьте соединение и попробуйте снова`);
+        }
+
         // Retry только для GET запросов и network ошибок
         if (retries > 0 && (!options.method || options.method === 'GET')) {
             // Exponential backoff: 1s, 2s, 4s
             const delay = Math.pow(2, 3 - retries) * 1000;
             await new Promise(resolve => setTimeout(resolve, delay));
-            return apiFetch<T>(url, options, retries - 1);
+            return apiFetch<T>(url, options, retries - 1, timeoutMs);
         }
         handleNetworkError(error);
     }

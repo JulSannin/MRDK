@@ -21,12 +21,13 @@ export default function BurgerMenuPanel({
             )}
 
             <nav
-                className={`fixed z-20 w-full top-[56px] bg-[#fdca40] 
+                className={`fixed z-20 w-full top-[56px] 
           flex flex-col xl:hidden transition-all duration-600 transform ${
               isOpen
                   ? 'translate-y-0 opacity-100 visible'
                   : '-translate-y-full opacity-0 invisible'
           }`}
+                style={{ backgroundColor: 'var(--color-yellow)' }}
             >
                 <hr className="border-dashed" />
                 {navLinksData.map((link) => (

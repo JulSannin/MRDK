@@ -54,7 +54,7 @@ export default function NavBar() {
 
     return (
         <>
-            <div className="flex justify-between bg-[#fdca40] w-full h-[56px] relative z-50">
+            <div className="flex justify-between w-full h-[56px] relative z-50" style={{ backgroundColor: 'var(--color-yellow)' }}>
                 <BurgerMenuButton isOpen={isOpen} onToggle={toggleMenu} />
                 <div className="flex items-center gap-[10px]">
                     <Logo />

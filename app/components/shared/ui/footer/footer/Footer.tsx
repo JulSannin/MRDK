@@ -5,7 +5,7 @@ import FooterContacts from './FooterContacts';
 /** Основной компонент подвала сайта */
 export default function Footer() {
     return (
-        <footer className="bg-[#31393C] min-h-[180px]">
+        <footer className="min-h-[180px]" style={{ backgroundColor: 'var(--color-dark)' }}>
             <div className="m-auto flex flex-col mt-[20px] max-w-[280px] md:max-w-[740px] xl:max-w-[1280px]">
                 <div className="flex flex-col md:flex-row justify-between">
                     <FooterLinks />

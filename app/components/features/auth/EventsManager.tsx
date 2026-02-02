@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { z } from 'zod';
 import { api } from '../../../utils/api';
 import { sortEventsByDate } from '../../../utils/eventHelpers';
 import { buildFormData } from '../../../utils/formDataHelpers';
@@ -13,10 +14,29 @@ type EventFormData = {
     date: string;
 };
 
+// Zod валидация для события
+const eventFormSchema = z.object({
+    title: z
+        .string()
+        .min(3, 'Название должно содержать минимум 3 символа')
+        .max(255, 'Название не должно превышать 255 символов')
+        .trim(),
+    fullDescription: z
+        .string()
+        .min(20, 'Описание должно содержать минимум 20 символов')
+        .max(5000, 'Описание не должно превышать 5000 символов'),
+    date: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Дата должна быть в формате YYYY-MM-DD'),
+});
+
+type EventFormInput = z.infer<typeof eventFormSchema>;
+
 /** Компонент управления событиями */
 export default function EventsManager() {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [submitting, setSubmitting] = useState(false);
+    const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof EventFormInput, string>>>({});
 
     const buildShortDescription = (description: string) => {
         const words = description.trim().split(/\s+/).filter(Boolean);
@@ -69,8 +89,33 @@ export default function EventsManager() {
         },
     });
 
+    const validateForm = () => {
+        setValidationErrors({});
+        const result = eventFormSchema.safeParse({
+            title: manager.formData.title,
+            fullDescription: manager.formData.fullDescription,
+            date: manager.formData.date,
+        });
+
+        if (!result.success) {
+            const fieldErrors = result.error.flatten().fieldErrors;
+            const errors: Partial<Record<keyof EventFormInput, string>> = {};
+            if (fieldErrors.title?.[0]) errors.title = fieldErrors.title[0];
+            if (fieldErrors.fullDescription?.[0]) errors.fullDescription = fieldErrors.fullDescription[0];
+            if (fieldErrors.date?.[0]) errors.date = fieldErrors.date[0];
+            setValidationErrors(errors);
+            return false;
+        }
+        return true;
+    };
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
         setSubmitting(true);
         try {
             await manager.handleSubmit(manager.formData);
@@ -113,8 +158,14 @@ export default function EventsManager() {
                                 value={manager.formData.title}
                                 onChange={(e) => manager.setFormData({ ...manager.formData, title: e.target.value })}
                                 required
-                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                                className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 ${
+                                    validationErrors.title ? 'border-red-500' : ''
+                                }`}
+                                aria-invalid={!!validationErrors.title}
                             />
+                            {validationErrors.title && (
+                                <p className="mt-1 text-sm text-red-600">{validationErrors.title}</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Описание</label>
@@ -123,8 +174,14 @@ export default function EventsManager() {
                                 onChange={(e) => manager.setFormData({ ...manager.formData, fullDescription: e.target.value })}
                                 required
                                 rows={4}
-                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                                className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 ${
+                                    validationErrors.fullDescription ? 'border-red-500' : ''
+                                }`}
+                                aria-invalid={!!validationErrors.fullDescription}
                             />
+                            {validationErrors.fullDescription && (
+                                <p className="mt-1 text-sm text-red-600">{validationErrors.fullDescription}</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Дата</label>
@@ -133,8 +190,14 @@ export default function EventsManager() {
                                 value={manager.formData.date}
                                 onChange={(e) => manager.setFormData({ ...manager.formData, date: e.target.value })}
                                 required
-                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+                                className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 ${
+                                    validationErrors.date ? 'border-red-500' : ''
+                                }`}
+                                aria-invalid={!!validationErrors.date}
                             />
+                            {validationErrors.date && (
+                                <p className="mt-1 text-sm text-red-600">{validationErrors.date}</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Изображение</label>

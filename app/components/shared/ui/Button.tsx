@@ -27,6 +27,8 @@ export default function Button({
     return (
         <button
             disabled={isDisabled}
+            aria-busy={loading}
+            aria-disabled={isDisabled}
             className={`
                 px-4 py-2 rounded font-medium transition-colors
                 disabled:opacity-50 disabled:cursor-not-allowed
@@ -36,8 +38,12 @@ export default function Button({
             {...props}
         >
             {loading ? (
-                <span className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="flex items-center gap-2" aria-label="Загрузка">
+                    <span 
+                        className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                        role="status"
+                        aria-label="Спиннер загрузки"
+                    />
                     {children}
                 </span>
             ) : (

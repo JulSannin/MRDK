@@ -39,7 +39,7 @@ export default function Home() {
     const { events } = useLoaderData<typeof clientLoader>();
     return (
         <div className="m-[20px_0_20px_0]">
-            <div className="bg-[#31393C]">
+            <div style={{ backgroundColor: 'var(--color-dark)' }}>
                 <p className="text-white text-center p-[20px] text-[20px]">
                     Последние события
                 </p>

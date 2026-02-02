@@ -4,6 +4,7 @@ import EventCard from './EventCard';
 import { api } from '../../../utils/api';
 import { sortEventsByDate } from '../../../utils/eventHelpers';
 import { useWindowWidth } from '../../../hooks/useWindowWidth';
+import { useNotification } from '../../../contexts/NotificationContext';
 import type { Event } from '../../entities/types';
 
 /** Получить количество карточек в зависимости от ширины экрана */
@@ -25,15 +26,19 @@ export async function clientLoader() {
         const sortedEvents = sortEventsByDate(events);
         return { events: sortedEvents };
     } catch (error) {
-        return { events: [] };
+        return { events: [], error: true };
     }
 }
 
 /** Страница со списком событий */
 export default function Events() {
-    const { events } = useLoaderData<{ events: Event[] }>();
+    const loaderData = useLoaderData<{ events: Event[]; error?: boolean }>();
     const [currentPage, setCurrentPage] = useState(1);
+    const [events, setEvents] = useState(loaderData.events);
+    const [error, setError] = useState(loaderData.error ?? false);
+    const [loading, setLoading] = useState(false);
     const windowWidth = useWindowWidth();
+    const { showError } = useNotification();
     
     const eventsPerPage = useMemo(() => getEventsPerPage(windowWidth), [windowWidth]);
 
@@ -43,6 +48,21 @@ export default function Events() {
             setCurrentPage(1);
         }
     }, [events.length, eventsPerPage, currentPage]);
+
+    const handleRetry = async () => {
+        setLoading(true);
+        setError(false);
+        try {
+            const newEvents = await api.getEvents();
+            const sortedEvents = sortEventsByDate(newEvents);
+            setEvents(sortedEvents);
+        } catch (err) {
+            setError(true);
+            showError('Не удалось загрузить события. Пожалуйста, проверьте соединение и попробуйте снова.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const totalPages = Math.ceil(events.length / eventsPerPage);
     const startIndex = (currentPage - 1) * eventsPerPage;
@@ -67,6 +87,25 @@ export default function Events() {
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                    <p className="text-red-600 text-lg font-semibold mb-4">Ошибка загрузки событий</p>
+                    <p className="text-gray-600 text-sm mb-6">Не удалось загрузить список событий. Пожалуйста, проверьте соединение.</p>
+                    <button
+                        onClick={handleRetry}
+                        disabled={loading}
+                        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        aria-busy={loading}
+                    >
+                        {loading ? 'Повторная загрузка...' : 'Попробовать снова'}
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (events.length === 0) {
         return (
@@ -99,7 +138,10 @@ export default function Events() {
                     <button
                         onClick={goToPrevPage}
                         disabled={currentPage === 1}
-                        className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded bg-[#2176FF] text-white hover:bg-[#1a5acc] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        style={{ backgroundColor: currentPage === 1 ? undefined : 'var(--color-primary)' }}
+                        onMouseEnter={(e) => { if (currentPage !== 1) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'; }}
+                        onMouseLeave={(e) => { if (currentPage !== 1) e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
                         aria-label="Предыдущая страница"
                     >
                         ← Назад
@@ -112,9 +154,10 @@ export default function Events() {
                                 onClick={() => goToPage(page)}
                                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded transition-colors ${
                                     page === currentPage
-                                        ? 'bg-[#2176FF] text-white font-bold'
+                                        ? 'text-white font-bold'
                                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
+                                style={page === currentPage ? { backgroundColor: 'var(--color-primary)' } : undefined}
                                 aria-label={`Страница ${page}`}
                                 aria-current={page === currentPage ? 'page' : undefined}
                             >
@@ -126,7 +169,10 @@ export default function Events() {
                     <button
                         onClick={goToNextPage}
                         disabled={currentPage === totalPages}
-                        className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded bg-[#2176FF] text-white hover:bg-[#1a5acc] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded text-white disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        style={{ backgroundColor: currentPage === totalPages ? undefined : 'var(--color-primary)' }}
+                        onMouseEnter={(e) => { if (currentPage !== totalPages) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'; }}
+                        onMouseLeave={(e) => { if (currentPage !== totalPages) e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
                         aria-label="Следующая страница"
                     >
                         Вперёд →
