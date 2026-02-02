@@ -189,7 +189,7 @@ export function useManager<T extends { id: number }, F extends Record<string, un
     }, [loadItems]);
 
     const handleSubmit = useCallback(async (data: D) => {
-        const validationTarget = data instanceof FormData ? formData : (data as F);
+        const validationTarget = data instanceof FormData ? formData : (data as unknown as F);
         const validationErrors = validateFormData(validationTarget, validationSchema);
         if (validationErrors.length > 0) {
             validationErrors.forEach(err => showError(err));
